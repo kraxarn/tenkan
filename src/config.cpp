@@ -34,9 +34,11 @@ Config::Config()
 auto Config::aikido() const -> AikidoConfig
 {
 	const auto object = json[QStringLiteral("aikido")].toObject();
-	Q_UNUSED(object)
 
-	return {};
+	return {
+		.clientId = object[QStringLiteral("client_id")].toString(),
+		.clientSecret = object[QStringLiteral("client_secret")].toString(),
+	};
 }
 
 auto Config::devops() const -> DevOpsConfig

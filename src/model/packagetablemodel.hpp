@@ -3,7 +3,7 @@
 #include <qqml.h>
 #include <QAbstractTableModel>
 
-#include "devops.hpp"
+#include "api/aikidoapi.hpp"
 #include "data/package.hpp"
 
 class PackageTableModel : public QAbstractListModel
@@ -44,9 +44,11 @@ private:
 	};
 
 	const Config config;
-	const DevOps devOps;
+	AikidoApi aikidoApi;
 
 	QList<Package> packages;
+
+	static auto getPackageType(const QString &langauge) -> PackageType;
 
 	static auto getPackageSourceIcon(PackageType type) -> QString;
 };

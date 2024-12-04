@@ -1,16 +1,17 @@
 #include "packagetablemodel.hpp"
 
+#include <QElapsedTimer>
+
 #include "config.hpp"
 #include "devops.hpp"
-#include "data/dotnet/packagereference.hpp"
 
 PackageTableModel::PackageTableModel(QObject *parent)
 	: QAbstractListModel(parent),
-	devOps(config, this)
+	aikidoApi(config, this)
 {
 }
 
-auto PackageTableModel::rowCount(const QModelIndex &parent) const -> int
+auto PackageTableModel::rowCount([[maybe_unused]] const QModelIndex &parent) const -> int
 {
 	return static_cast<int>(packages.length());
 }
@@ -97,28 +98,63 @@ void PackageTableModel::loadItems()
 		return;
 	}
 
-	devOps.getPackageReferences([this](const QList<DotNet::PackageReference> &dotnetPackages)
+	aikidoApi.repositories([this](const QList<AikidoCodeRepository> &aikidoRepositories)
 	{
-		beginInsertRows({},
-			static_cast<int>(packages.length()),
-			static_cast<int>(packages.length() + dotnetPackages.length())
-		);
-
-		for (const auto &dotnetPackage: dotnetPackages)
+		for (const auto &aikidoRepository: aikidoRepositories)
 		{
-			packages.push_back({
-				.name = dotnetPackage.include,
-				.version = dotnetPackage.version,
-				.type = PackageType::DotNet,
-				.assignedTeam = {},
-				.status = PackageStatus::Unknown,
-				.lastChecked = {},
+			aikidoApi.packages(aikidoRepository.id, [this](const QList<AikidoPackage> &aikidoPackages)
+			{
+				QElapsedTimer timer;
+				timer.start();
+
+				beginInsertRows({},
+					static_cast<int>(packages.length()),
+					static_cast<int>(packages.length() + aikidoPackages.length())
+				);
+
+				for (const auto &aikidoPackage: aikidoPackages)
+				{
+					const qsizetype separatorIndex = aikidoPackage.packageName.lastIndexOf('@');
+
+					auto packageName = aikidoPackage.packageName
+						.first(separatorIndex);
+
+					auto packageVersion = aikidoPackage.packageName
+						.last(aikidoPackage.packageName.length() - separatorIndex - 1);
+
+					packages.append({
+						.name = std::move(packageName),
+						.version = std::move(packageVersion),
+						.type = getPackageType(aikidoPackage.language),
+						.assignedTeam = {},
+						.status = PackageStatus::Unknown,
+						.lastChecked = {},
+					});
+				}
+
+				endInsertRows();
+
+				qInfo() << "Loaded" << packages.length() << "packages in" << timer.elapsed() << "ms";
 			});
 		}
-
-		endInsertRows();
 	});
 }
+
+auto PackageTableModel::getPackageType(const QString &langauge) -> PackageType
+{
+	if (langauge == QStringLiteral("dotnet"))
+	{
+		return PackageType::DotNet;
+	}
+
+	if (langauge == QStringLiteral("js"))
+	{
+		return PackageType::NodeJs;
+	}
+
+	return PackageType::Unknown;
+}
+
 
 auto PackageTableModel::getPackageSourceIcon(const PackageType type) -> QString
 {

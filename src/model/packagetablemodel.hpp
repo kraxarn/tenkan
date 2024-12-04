@@ -40,11 +40,14 @@ private:
 	const Config config;
 	AikidoApi aikidoApi;
 
-	QList<Package> packages;
+	QHash<QString, QList<Package>> packages;
+	QStringList packageOrder;
 
 	static auto getPackageType(const QString &langauge) -> PackageType;
 
 	static auto getPackageSourceIcon(PackageType type) -> QString;
 
 	void loadItems(const QList<AikidoPackage> &aikidoPackages);
+
+	void addPackage(const Package &package);
 };

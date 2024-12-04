@@ -13,12 +13,13 @@ PackageTableModel::PackageTableModel(QObject *parent)
 
 auto PackageTableModel::rowCount([[maybe_unused]] const QModelIndex &parent) const -> int
 {
-	return static_cast<int>(packages.length());
+	return static_cast<int>(packages.size());
 }
 
 auto PackageTableModel::data(const QModelIndex &index, const int role) const -> QVariant
 {
-	const auto package = packages.at(index.row());
+	const auto packageName = packageOrder.at(index.row());
+	const auto package = packages[packageName].at(0);
 
 	switch (static_cast<ItemRole>(role))
 	{
@@ -61,14 +62,27 @@ auto PackageTableModel::roleNames() const -> QHash<int, QByteArray>
 	};
 }
 
+void PackageTableModel::addPackage(const Package &package)
+{
+	if (packages.contains(package.name))
+	{
+		packages[package.name].append(package);
+		return;
+	}
+
+	packages.insert(package.name, {package});
+	packageOrder.append(package.name);
+}
+
+
 void PackageTableModel::loadItems(const QList<AikidoPackage> &aikidoPackages)
 {
 	QElapsedTimer timer;
 	timer.start();
 
 	beginInsertRows({},
-		static_cast<int>(packages.length()),
-		static_cast<int>(packages.length() + aikidoPackages.length())
+		static_cast<int>(packages.size()),
+		static_cast<int>(packages.size() + aikidoPackages.length())
 	);
 
 	for (const auto &aikidoPackage: aikidoPackages)
@@ -81,7 +95,7 @@ void PackageTableModel::loadItems(const QList<AikidoPackage> &aikidoPackages)
 		auto packageVersion = aikidoPackage.packageName
 			.last(aikidoPackage.packageName.length() - separatorIndex - 1);
 
-		packages.append({
+		addPackage({
 			.name = std::move(packageName),
 			.version = std::move(packageVersion),
 			.type = getPackageType(aikidoPackage.language),
@@ -93,9 +107,8 @@ void PackageTableModel::loadItems(const QList<AikidoPackage> &aikidoPackages)
 
 	endInsertRows();
 
-	qInfo() << "Loaded" << packages.length() << "packages in" << timer.elapsed() << "ms";
+	qInfo() << "Loaded" << packages.size() << "packages in" << timer.elapsed() << "ms";
 }
-
 
 void PackageTableModel::loadItems()
 {

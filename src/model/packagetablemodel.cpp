@@ -62,6 +62,29 @@ auto PackageTableModel::roleNames() const -> QHash<int, QByteArray>
 	};
 }
 
+void PackageTableModel::sort(const int column, const Qt::SortOrder order)
+{
+	emit layoutAboutToBeChanged();
+
+	std::sort(packageOrder.begin(), packageOrder.end(), [](const QString &str1, const QString &str2)
+	{
+		return removePrefix(str1).compare(removePrefix(str2), Qt::CaseInsensitive) < 0;
+	});
+
+	emit layoutChanged();
+}
+
+auto PackageTableModel::removePrefix(const QString &str) -> QStringView
+{
+	if (str.at(0) != '@')
+	{
+		return {str};
+	}
+
+	return QStringView(str).right(str.length() - 1);
+}
+
+
 void PackageTableModel::addPackage(const Package &package)
 {
 	if (packages.contains(package.name))
@@ -107,6 +130,11 @@ void PackageTableModel::loadItems(const QList<AikidoPackage> &aikidoPackages)
 
 	endInsertRows();
 
+	if (--repositoryCount == 0)
+	{
+		sort(0, Qt::AscendingOrder);
+	}
+
 	qInfo() << "Loaded" << packages.size() << "packages in" << timer.elapsed() << "ms";
 }
 
@@ -119,6 +147,8 @@ void PackageTableModel::loadItems()
 
 	aikidoApi.repositories([this](const QList<AikidoCodeRepository> &aikidoRepositories)
 	{
+		repositoryCount = aikidoRepositories.size();
+
 		for (const auto &aikidoRepository: aikidoRepositories)
 		{
 			aikidoApi.packages(aikidoRepository.id, [this](const QList<AikidoPackage> &aikidoPackages)

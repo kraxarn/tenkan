@@ -23,6 +23,8 @@ public:
 	[[nodiscard]]
 	auto roleNames() const -> QHash<int, QByteArray> override;
 
+	Q_INVOKABLE void sort(int column, Qt::SortOrder order) override;
+
 	Q_INVOKABLE void loadItems();
 
 private:
@@ -42,6 +44,7 @@ private:
 
 	QHash<QString, QList<Package>> packages;
 	QStringList packageOrder;
+	qsizetype repositoryCount = -1;
 
 	static auto getPackageType(const QString &langauge) -> PackageType;
 
@@ -50,4 +53,6 @@ private:
 	void loadItems(const QList<AikidoPackage> &aikidoPackages);
 
 	void addPackage(const Package &package);
+
+	static auto removePrefix(const QString &str) -> QStringView;
 };

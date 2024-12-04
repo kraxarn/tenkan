@@ -17,17 +17,11 @@ public:
 	[[nodiscard]]
 	auto rowCount(const QModelIndex &parent) const -> int override;
 
-	// [[nodiscard]]
-	// auto columnCount(const QModelIndex &parent) const -> int override;
-
 	[[nodiscard]]
 	auto data(const QModelIndex &index, int role) const -> QVariant override;
 
 	[[nodiscard]]
 	auto roleNames() const -> QHash<int, QByteArray> override;
-
-	// [[nodiscard]]
-	// auto headerData(int section, Qt::Orientation orientation, int role) const -> QVariant override;
 
 	Q_INVOKABLE void loadItems();
 

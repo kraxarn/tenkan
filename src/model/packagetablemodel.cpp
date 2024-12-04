@@ -61,36 +61,6 @@ auto PackageTableModel::roleNames() const -> QHash<int, QByteArray>
 	};
 }
 
-// auto PackageTableModel::headerData(int section, Qt::Orientation orientation, int role) const -> QVariant
-// {
-// 	switch (static_cast<Section>(section))
-// 	{
-// 		case Section::PackageName:
-// 			return QStringLiteral("Name");
-//
-// 		case Section::PackageVersion:
-// 			return QStringLiteral("Version");
-//
-// 		case Section::PackageSource:
-// 			return QStringLiteral("Source");
-//
-// 		case Section::AssignedTeam:
-// 			return QStringLiteral("Team");
-//
-// 		case Section::Status:
-// 			return QStringLiteral("Status");
-//
-// 		case Section::LastChecked:
-// 			return QStringLiteral("Last Checked");
-//
-// 		case Section::Actions:
-// 			return QStringLiteral("Actions");
-//
-// 		default:
-// 			return {};
-// 	}
-// }
-
 void PackageTableModel::loadItems(const QList<AikidoPackage> &aikidoPackages)
 {
 	QElapsedTimer timer;

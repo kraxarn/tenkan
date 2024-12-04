@@ -91,6 +91,42 @@ auto PackageTableModel::roleNames() const -> QHash<int, QByteArray>
 // 	}
 // }
 
+void PackageTableModel::loadItems(const QList<AikidoPackage> &aikidoPackages)
+{
+	QElapsedTimer timer;
+	timer.start();
+
+	beginInsertRows({},
+		static_cast<int>(packages.length()),
+		static_cast<int>(packages.length() + aikidoPackages.length())
+	);
+
+	for (const auto &aikidoPackage: aikidoPackages)
+	{
+		const qsizetype separatorIndex = aikidoPackage.packageName.lastIndexOf('@');
+
+		auto packageName = aikidoPackage.packageName
+			.first(separatorIndex);
+
+		auto packageVersion = aikidoPackage.packageName
+			.last(aikidoPackage.packageName.length() - separatorIndex - 1);
+
+		packages.append({
+			.name = std::move(packageName),
+			.version = std::move(packageVersion),
+			.type = getPackageType(aikidoPackage.language),
+			.assignedTeam = {},
+			.status = PackageStatus::Unknown,
+			.lastChecked = {},
+		});
+	}
+
+	endInsertRows();
+
+	qInfo() << "Loaded" << packages.length() << "packages in" << timer.elapsed() << "ms";
+}
+
+
 void PackageTableModel::loadItems()
 {
 	if (!packages.isEmpty())
@@ -104,37 +140,7 @@ void PackageTableModel::loadItems()
 		{
 			aikidoApi.packages(aikidoRepository.id, [this](const QList<AikidoPackage> &aikidoPackages)
 			{
-				QElapsedTimer timer;
-				timer.start();
-
-				beginInsertRows({},
-					static_cast<int>(packages.length()),
-					static_cast<int>(packages.length() + aikidoPackages.length())
-				);
-
-				for (const auto &aikidoPackage: aikidoPackages)
-				{
-					const qsizetype separatorIndex = aikidoPackage.packageName.lastIndexOf('@');
-
-					auto packageName = aikidoPackage.packageName
-						.first(separatorIndex);
-
-					auto packageVersion = aikidoPackage.packageName
-						.last(aikidoPackage.packageName.length() - separatorIndex - 1);
-
-					packages.append({
-						.name = std::move(packageName),
-						.version = std::move(packageVersion),
-						.type = getPackageType(aikidoPackage.language),
-						.assignedTeam = {},
-						.status = PackageStatus::Unknown,
-						.lastChecked = {},
-					});
-				}
-
-				endInsertRows();
-
-				qInfo() << "Loaded" << packages.length() << "packages in" << timer.elapsed() << "ms";
+				loadItems(aikidoPackages);
 			});
 		}
 	});

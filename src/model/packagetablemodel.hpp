@@ -51,4 +51,6 @@ private:
 	static auto getPackageType(const QString &langauge) -> PackageType;
 
 	static auto getPackageSourceIcon(PackageType type) -> QString;
+
+	void loadItems(const QList<AikidoPackage> &aikidoPackages);
 };

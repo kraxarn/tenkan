@@ -5,6 +5,7 @@
 
 #include "api/aikidoapi.hpp"
 #include "data/package.hpp"
+#include "model/packagetableproxymodel.hpp"
 
 class PackageTableModel : public QAbstractListModel
 {
@@ -38,6 +39,8 @@ private:
 		LastChecked,
 		Actions,
 	};
+
+	PackageTableProxyModel *proxyModel;
 
 	const Config config;
 	AikidoApi aikidoApi;

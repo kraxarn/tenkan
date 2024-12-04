@@ -7,8 +7,10 @@
 
 PackageTableModel::PackageTableModel(QObject *parent)
 	: QAbstractListModel(parent),
+	proxyModel(new PackageTableProxyModel(this)),
 	aikidoApi(config, this)
 {
+	proxyModel->setSourceModel(this);
 }
 
 auto PackageTableModel::rowCount([[maybe_unused]] const QModelIndex &parent) const -> int

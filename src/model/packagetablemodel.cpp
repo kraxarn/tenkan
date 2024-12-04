@@ -13,7 +13,7 @@ PackageTableModel::PackageTableModel(QObject *parent)
 
 auto PackageTableModel::rowCount([[maybe_unused]] const QModelIndex &parent) const -> int
 {
-	return static_cast<int>(packages.size());
+	return static_cast<int>(packageOrder.size());
 }
 
 auto PackageTableModel::data(const QModelIndex &index, const int role) const -> QVariant

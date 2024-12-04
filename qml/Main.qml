@@ -19,28 +19,6 @@ ApplicationWindow {
 	Material.background: "#1a1a27"
 	Material.accent: "#a15bfc"
 
-	// menuBar: MenuBar {
-	// 	Menu {
-	// 		title: qsTr("&File")
-	// 		Action { text: qsTr("&New...") }
-	// 		Action { text: qsTr("&Open...") }
-	// 		Action { text: qsTr("&Save") }
-	// 		Action { text: qsTr("Save &As...") }
-	// 		MenuSeparator { }
-	// 		Action { text: qsTr("&Quit") }
-	// 	}
-	// 	Menu {
-	// 		title: qsTr("&Edit")
-	// 		Action { text: qsTr("Cu&t") }
-	// 		Action { text: qsTr("&Copy") }
-	// 		Action { text: qsTr("&Paste") }
-	// 	}
-	// 	Menu {
-	// 		title: qsTr("&Help")
-	// 		Action { text: qsTr("&About") }
-	// 	}
-	// }
-
 	header: ToolBar {
 		RowLayout {
 			anchors.fill: parent
@@ -67,13 +45,6 @@ ApplicationWindow {
 				onDoubleClicked: window.maximize()
 			}
 
-			// Label {
-			// 	text: "Title"
-			// 	elide: Label.ElideRight
-			// 	horizontalAlignment: Qt.AlignHCenter
-			// 	verticalAlignment: Qt.AlignVCenter
-			// }
-
 			ToolButton {
 				icon.source: "qrc:/res/icon/filter-outline.svg"
 			}
@@ -92,54 +63,16 @@ ApplicationWindow {
 		}
 	}
 
-	// footer: Label {
-	// 	text: "Loading packages..."
-	// }
-
-	// footer: TabBar {
-	// 	id: bar
-	// 	width: parent.width
-	// 	TabButton {
-	// 		text: qsTr("Home")
-	// 	}
-	// 	TabButton {
-	// 		text: qsTr("Discover")
-	// 	}
-	// 	TabButton {
-	// 		text: qsTr("Activity")
-	// 	}
-	// }
-
-	// StackView {
-	// 	anchors.fill: parent
-	// }
-
 	ColumnLayout {
 		anchors {
 			fill: parent
-			// margins: 16
 		}
-
-		// Pane {
-		// 	Layout.fillWidth: true
-		//
-		// 	background: Rectangle {
-		// 		color: Material.primary
-		// 	}
-		// }
-
-		// HorizontalHeaderView {
-		// 	syncView: packageTable
-		// 	z: 1
-		// }
 
 		ListView {
 			id: packageList
 
 			Layout.fillWidth: true
 			Layout.fillHeight: true
-
-			// property int foo
 
 			Component.onCompleted: {
 				packageModel.loadItems()
@@ -148,25 +81,6 @@ ApplicationWindow {
 			model: PackageTableModel {
 				id: packageModel
 			}
-
-			// onWidthChanged: {
-			// 	packageTable.foo = width
-			// }
-
-			// delegate: ItemDelegate {
-			// 	implicitWidth: packageTable.width / 7
-			// 	Label {
-			// 		text: model.display
-			// 	}
-			// }
-
-			// delegate: Pane {
-			// 	// implicitWidth: packageTable.foo / 7
-			//
-			// 	Label {
-			// 		text: display
-			// 	}
-			// }
 
 			delegate: ItemDelegate {
 				width: parent ? parent.width : 0

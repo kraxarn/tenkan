@@ -25,8 +25,22 @@ ApplicationWindow {
 			anchors.fill: parent
 
 			ToolButton {
-				icon.source: "qrc:/res/icon/package-variant.svg"
+				icon.source: "qrc:/res/icon/window-close.svg"
+				onClicked: window.close()
+				visible: Settings.titlebarPlacement === "left"
 			}
+
+			ToolButton {
+				icon.source: "qrc:/res/icon/window-minimize.svg"
+				onClicked: window.minimize()
+				visible: Settings.titlebarPlacement === "left"
+			}
+
+			ToolSeparator {
+				visible: Settings.titlebarPlacement === "left"
+			}
+
+			AppLogo {}
 
 			Label {
 				text: greeter.message
@@ -54,16 +68,20 @@ ApplicationWindow {
 				icon.source: "qrc:/res/icon/filter-outline.svg"
 			}
 
-			ToolSeparator {}
+			ToolSeparator {
+				visible: Settings.titlebarPlacement === "right"
+			}
 
 			ToolButton {
 				icon.source: "qrc:/res/icon/window-minimize.svg"
 				onClicked: window.minimize()
+				visible: Settings.titlebarPlacement === "right"
 			}
 
 			ToolButton {
 				icon.source: "qrc:/res/icon/window-close.svg"
 				onClicked: window.close()
+				visible: Settings.titlebarPlacement === "right"
 			}
 		}
 	}

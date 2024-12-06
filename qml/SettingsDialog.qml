@@ -19,9 +19,11 @@ Dialog {
 			}
 
 			ComboBox {
+				textRole: "text"
+				valueRole: "value"
 				model: [
-					"right",
-					"left",
+					{ value: "right", text: "Right (default)" },
+					{ value: "left", text: "Left" },
 				]
 				Component.onCompleted: currentIndex = indexOfValue(Settings.titlebarPlacement)
 				onActivated: Settings.titlebarPlacement = currentValue

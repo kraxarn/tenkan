@@ -8,6 +8,7 @@
 #include "devops.hpp"
 #include "qml/windowmanager.hpp"
 #include "qml/greeter.hpp"
+#include "qml/settings.hpp"
 
 namespace
 {
@@ -28,6 +29,9 @@ namespace
 		qmlRegisterType<PackageTableModel>("PackageTableModel", 1, 0, "PackageTableModel");
 		qmlRegisterType<WindowManager>("WindowManager", 1, 0, "WindowManager");
 		qmlRegisterType<Greeter>("Greeter", 1, 0, "Greeter");
+
+		qmlRegisterSingletonInstance<Settings>("Settings", 1, 0,
+			"Settings", new Settings());
 	}
 }
 
@@ -35,6 +39,7 @@ auto main(int argc, char *argv[]) -> int
 {
 	QCoreApplication::setApplicationName(QStringLiteral(APP_NAME));
 	QCoreApplication::setApplicationVersion(QStringLiteral(APP_VERSION));
+	QCoreApplication::setOrganizationName(QStringLiteral(ORG_NAME));
 
 	const QGuiApplication app(argc, argv);
 

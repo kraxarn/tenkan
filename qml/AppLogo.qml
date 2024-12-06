@@ -11,6 +11,7 @@ ToolButton {
 
 		MenuItem {
 			text: "Settings..."
+			onClicked: settingsDialog.open()
 		}
 
 		MenuItem {

@@ -9,6 +9,7 @@ qt_add_qml_module(${PROJECT_NAME}
         qml/Main.qml
         qml/AppLogo.qml
         qml/AboutDialog.qml
+        qml/SettingsDialog.qml
         RESOURCES
         res/font/RobotoFlex-Regular.ttf
         res/icon/alert.svg

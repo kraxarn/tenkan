@@ -68,6 +68,22 @@ ApplicationWindow {
 		}
 	}
 
+	AboutDialog {
+		id: aboutDialog
+		modal: true
+		focus: true
+		x: Math.round((root.width - width) / 2)
+		y: Math.round(root.height / 6)
+	}
+
+	SettingsDialog {
+		id: settingsDialog
+		modal: true
+		focus: true
+		x: Math.round((root.width - width) / 2)
+		y: Math.round(root.height / 6)
+	}
+
 	ColumnLayout {
 		anchors {
 			fill: parent

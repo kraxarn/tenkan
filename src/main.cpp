@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QFontDatabase>
+#include <QQmlContext>
 
 #include "config.hpp"
 #include "packagetablemodel.hpp"
@@ -10,8 +11,20 @@
 
 namespace
 {
-	void defineTypes(QQmlApplicationEngine &engine)
+	void defineTypes(const QQmlApplicationEngine &engine)
 	{
+		engine.rootContext()->setContextProperty(QStringLiteral("AppName"),
+			QCoreApplication::applicationName());
+
+		engine.rootContext()->setContextProperty(QStringLiteral("AppVersion"),
+			QCoreApplication::applicationVersion());
+
+		engine.rootContext()->setContextProperty(QStringLiteral("QtVersion"),
+			QStringLiteral(QT_VERSION_STR));
+
+		engine.rootContext()->setContextProperty(QStringLiteral("BuildDate"),
+			QStringLiteral(__DATE__));
+
 		qmlRegisterType<PackageTableModel>("PackageTableModel", 1, 0, "PackageTableModel");
 		qmlRegisterType<WindowManager>("WindowManager", 1, 0, "WindowManager");
 		qmlRegisterType<Greeter>("Greeter", 1, 0, "Greeter");
@@ -20,6 +33,9 @@ namespace
 
 auto main(int argc, char *argv[]) -> int
 {
+	QCoreApplication::setApplicationName(QStringLiteral(APP_NAME));
+	QCoreApplication::setApplicationVersion(QStringLiteral(APP_VERSION));
+
 	const QGuiApplication app(argc, argv);
 
 	QFontDatabase::addApplicationFont(":/res/font/RobotoFlex-Regular.ttf");

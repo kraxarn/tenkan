@@ -5,7 +5,6 @@
 
 #include "config.hpp"
 #include "packagetablemodel.hpp"
-#include "devops.hpp"
 #include "qml/windowmanager.hpp"
 #include "qml/greeter.hpp"
 #include "qml/settings.hpp"

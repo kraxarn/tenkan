@@ -3,7 +3,6 @@
 #include <QElapsedTimer>
 
 #include "config.hpp"
-#include "devops.hpp"
 
 PackageTableModel::PackageTableModel(QObject *parent)
 	: QAbstractListModel(parent),

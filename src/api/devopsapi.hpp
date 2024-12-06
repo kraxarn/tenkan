@@ -1,34 +1,33 @@
 #pragma once
 
-#include <QNetworkAccessManager>
-
 #include "config.hpp"
 #include "data/dotnet/packagereference.hpp"
 #include "data/nodejs/package.hpp"
+#include "api/api.hpp"
 
-class DevOps : public QObject
+class DevOpsApi : public Api
 {
 	Q_OBJECT
 
 public:
-	DevOps(const Config &config, QObject *parent);
+	DevOpsApi(const Config &config, QObject *parent);
 
 	void getPackageReferences(const std::function<void(QList<DotNet::PackageReference>)> &callback) const;
 
 	[[nodiscard]]
 	auto getPackages() const -> QList<NodeJs::Package>;
 
+protected:
+	[[nodiscard]]
+	auto baseUrl() const -> QString override;
+
+	[[nodiscard]]
+	auto headers() const -> QHttpHeaders override;
+
 private:
 	const DevOpsConfig config;
-	QNetworkAccessManager *manager;
-
-	auto prepareRequest(const QString &url) const -> QNetworkRequest;
 
 	void getFileContent(const QString &path, const std::function<void(QByteArray)> &callback) const;
-
-	void await(QNetworkReply *reply, const std::function<void(QByteArray)> &callback) const;
-
-	auto baseUrl() const -> QString;
 
 	auto accessToken() const -> QString;
 

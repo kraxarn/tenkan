@@ -6,6 +6,7 @@
 #include "packagetablemodel.hpp"
 #include "devops.hpp"
 #include "qml/windowmanager.hpp"
+#include "qml/greeter.hpp"
 
 namespace
 {
@@ -13,6 +14,7 @@ namespace
 	{
 		qmlRegisterType<PackageTableModel>("PackageTableModel", 1, 0, "PackageTableModel");
 		qmlRegisterType<WindowManager>("WindowManager", 1, 0, "WindowManager");
+		qmlRegisterType<Greeter>("Greeter", 1, 0, "Greeter");
 	}
 }
 

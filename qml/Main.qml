@@ -5,6 +5,7 @@ import QtQuick.Controls.Material
 
 import PackageTableModel
 import WindowManager
+import Greeter
 
 ApplicationWindow {
 	id: root
@@ -28,8 +29,12 @@ ApplicationWindow {
 			}
 
 			Label {
-				text: "Welcome!"
+				text: greeter.message
 				font.bold: true
+
+				Greeter {
+					id: greeter
+				}
 			}
 
 			WindowManager {

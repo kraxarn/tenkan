@@ -110,6 +110,8 @@ ApplicationWindow {
 		ListView {
 			id: packageList
 
+			ScrollBar.vertical: ScrollBar {}
+
 			Layout.fillWidth: true
 			Layout.fillHeight: true
 

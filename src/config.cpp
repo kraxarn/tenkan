@@ -6,10 +6,6 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-#include "simplecrypt/simplecrypt.h"
-
-#define SUPER_SECRET_KEY Q_UINT64_C(6168424485035677813)
-
 Config::Config()
 	: json(parse())
 {
@@ -21,13 +17,11 @@ Config::Config()
 		file.write(value.toCbor());
 	}
 	{
-		SimpleCrypt crypt(SUPER_SECRET_KEY);
-
 		QFile file("config.bin");
 		file.open(QIODevice::WriteOnly);
 
 		const auto value = QCborValue::fromJsonValue(json.object());
-		file.write(crypt.encryptToByteArray(value.toCbor()));
+		file.write(qCompress(value.toCbor()));
 	}
 }
 
@@ -105,10 +99,9 @@ auto Config::parse() -> QJsonDocument
 	if (QFile file(QStringLiteral("config.bin"));
 		file.open(QIODevice::ReadOnly))
 	{
-		qInfo() << "Reading config from encrypted binary";
+		qInfo() << "Reading config from compressed binary";
 
-		SimpleCrypt crypt(SUPER_SECRET_KEY);
-		const auto cbor = crypt.decryptToByteArray(file.readAll());
+		const auto cbor = qUncompress(qUncompress(file.readAll()));
 		const auto value = QCborValue::fromCbor(cbor);
 		const auto json = value.toMap().toJsonObject();
 		return QJsonDocument(json);

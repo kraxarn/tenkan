@@ -3,7 +3,7 @@
 #include <QObject>
 #include <qqmlintegration.h>
 
-class Greeter: public QObject
+class Greeter : public QObject
 {
 	Q_OBJECT
 	QML_ELEMENT
@@ -14,6 +14,6 @@ public:
 	[[nodiscard]]
 	static auto getMessage() -> QString;
 
-	signals:
-		void messageChanged();
+signals:
+	void messageChanged();
 };

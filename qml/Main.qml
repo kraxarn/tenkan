@@ -144,8 +144,18 @@ ApplicationWindow {
 						icon.source: model.packageSource ? `qrc:/res/icon/${model.packageSource}.svg` : undefined
 					}
 
-					Label {
+					ToolButton {
 						text: model.assignedTeam || "<empty>"
+						onClicked: teamMenu.open()
+
+						Menu {
+							id: teamMenu
+
+							MenuItem {
+								text: "Nothing here"
+								enabled: false
+							}
+						}
 					}
 
 					Label {

@@ -25,4 +25,6 @@ private:
 
 	[[nodiscard]]
 	static auto parse() -> QJsonDocument;
+
+	void save() const;
 };

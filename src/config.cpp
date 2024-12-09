@@ -9,20 +9,9 @@
 Config::Config()
 	: json(parse())
 {
-	{
-		QFile file("config.cbor");
-		file.open(QIODevice::WriteOnly);
-
-		const auto value = QCborValue::fromJsonValue(json.object());
-		file.write(value.toCbor());
-	}
-	{
-		QFile file("config.bin");
-		file.open(QIODevice::WriteOnly);
-
-		const auto value = QCborValue::fromJsonValue(json.object());
-		file.write(qCompress(value.toCbor()));
-	}
+#ifndef NDEBUG
+	save();
+#endif
 }
 
 auto Config::aikido() const -> AikidoConfig
@@ -109,4 +98,13 @@ auto Config::parse() -> QJsonDocument
 
 	qFatal() << "No config file found";
 	return {};
+}
+
+void Config::save() const
+{
+	QFile file("config.bin");
+	file.open(QIODevice::WriteOnly);
+
+	const auto value = QCborValue::fromJsonValue(json.object());
+	file.write(qCompress(value.toCbor()));
 }

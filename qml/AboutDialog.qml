@@ -6,9 +6,22 @@ Dialog {
 	title: "About"
 	standardButtons: Dialog.Ok
 
-	Column {
+	Grid {
+		columns: 2
+		spacing: 8
+
 		Label {
-			text: `${AppName} ${AppVersion}`
+			text: AppName
+			font.pointSize: 12
+		}
+
+		Label {
+			text: AppVersion
+			font.pointSize: 12
+		}
+
+		Label {
+			text: "Built"
 			font.pointSize: 12
 		}
 
@@ -18,7 +31,12 @@ Dialog {
 		}
 
 		Label {
-			text: `Qt ${QtVersion}`
+			text: "Qt"
+			font.pointSize: 12
+		}
+
+		Label {
+			text: QtVersion
 			font.pointSize: 12
 		}
 	}

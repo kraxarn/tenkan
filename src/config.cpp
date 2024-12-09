@@ -90,7 +90,7 @@ auto Config::parse() -> QJsonDocument
 	{
 		qInfo() << "Reading config from compressed binary";
 
-		const auto cbor = qUncompress(qUncompress(file.readAll()));
+		const auto cbor = qUncompress(file.readAll());
 		const auto value = QCborValue::fromCbor(cbor);
 		const auto json = value.toMap().toJsonObject();
 		return QJsonDocument(json);

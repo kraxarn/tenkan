@@ -27,11 +27,8 @@ protected:
 private:
 	const DevOpsConfig config;
 
-	void getFileContent(const QString &path, const std::function<void(QByteArray)> &callback) const;
+	void getFileContent(const QString &repositoryId, const QString &path,
+		const std::function<void(QByteArray)> &callback) const;
 
 	auto accessToken() const -> QString;
-
-	auto repositoryId() const -> QString;
-
-	auto projects() const -> const QStringList &;
 };

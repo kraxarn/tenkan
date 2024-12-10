@@ -30,22 +30,11 @@ auto DevOpsApi::accessToken() const -> QString
 		.arg(config.pat).toUtf8().toBase64());
 }
 
-auto DevOpsApi::repositoryId() const -> QString
-{
-	// TODO: Currently, we only support one repository
-	return config.repositories.at(0).id;
-}
-
-auto DevOpsApi::projects() const -> const QStringList &
-{
-	// TODO: Currently, we only support one repository
-	return config.repositories.at(0).files;
-}
-
-void DevOpsApi::getFileContent(const QString &path, const std::function<void(QByteArray)> &callback) const
+void DevOpsApi::getFileContent(const QString &repositoryId, const QString &path,
+	const std::function<void(QByteArray)> &callback) const
 {
 	const auto url = QStringLiteral("/git/repositories/%1/items?path=%2")
-		.arg(repositoryId(), path);
+		.arg(repositoryId, path);
 
 	const auto request = prepareRequest(url);
 	auto *reply = http()->get(request);
@@ -55,17 +44,20 @@ void DevOpsApi::getFileContent(const QString &path, const std::function<void(QBy
 
 void DevOpsApi::getPackageReferences(const std::function<void(QList<DotNet::PackageReference>)> &callback) const
 {
-	for (const auto &project: projects())
+	for (const auto &repository: config.repositories)
 	{
-		if (!project.endsWith(".csproj"))
+		for (const auto &path: repository.files)
 		{
-			continue;
-		}
+			if (!path.endsWith(".csproj"))
+			{
+				continue;
+			}
 
-		getFileContent(project, [callback](const QByteArray &response)
-		{
-			CsProjParser parser(response);
-			callback(parser.getPackageReferences());
-		});
+			getFileContent(repository.id, path, [callback](const QByteArray &response)
+			{
+				CsProjParser parser(response);
+				callback(parser.getPackageReferences());
+			});
+		}
 	}
 }

@@ -61,3 +61,21 @@ void DevOpsApi::getPackageReferences(const std::function<void(QList<DotNet::Pack
 		}
 	}
 }
+
+auto DevOpsApi::repositoryFileCount(const QString &suffix) const -> qsizetype
+{
+	qsizetype count = 0;
+
+	for (const auto &repository: config.repositories)
+	{
+		for (const auto &path: repository.files)
+		{
+			if (path.endsWith(suffix))
+			{
+				count++;
+			}
+		}
+	}
+
+	return count;
+}

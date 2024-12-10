@@ -17,6 +17,9 @@ public:
 	[[nodiscard]]
 	auto getPackages() const -> QList<NodeJs::Package>;
 
+	[[nodiscard]]
+	auto repositoryFileCount(const QString &suffix) const -> qsizetype;
+
 protected:
 	[[nodiscard]]
 	auto baseUrl() const -> QString override;

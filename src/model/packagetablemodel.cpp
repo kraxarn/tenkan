@@ -7,7 +7,8 @@
 PackageTableModel::PackageTableModel(QObject *parent)
 	: QAbstractListModel(parent),
 	proxyModel(new PackageTableProxyModel(this)),
-	aikidoApi(config, this)
+	aikidoApi(config, this),
+	devOpsApi(config, this)
 {
 	proxyModel->setSourceModel(this);
 }
@@ -99,30 +100,22 @@ void PackageTableModel::addPackage(const Package &package)
 }
 
 
-void PackageTableModel::loadItems(const QList<AikidoPackage> &aikidoPackages)
+void PackageTableModel::loadItems(const QList<DotNet::PackageReference> &dotNetPackages)
 {
 	QElapsedTimer timer;
 	timer.start();
 
 	beginInsertRows({},
 		static_cast<int>(packages.size()),
-		static_cast<int>(packages.size() + aikidoPackages.length())
+		static_cast<int>(packages.size() + dotNetPackages.length())
 	);
 
-	for (const auto &aikidoPackage: aikidoPackages)
+	for (const auto &package: dotNetPackages)
 	{
-		const qsizetype separatorIndex = aikidoPackage.packageName.lastIndexOf('@');
-
-		auto packageName = aikidoPackage.packageName
-			.first(separatorIndex);
-
-		auto packageVersion = aikidoPackage.packageName
-			.last(aikidoPackage.packageName.length() - separatorIndex - 1);
-
 		addPackage({
-			.name = std::move(packageName),
-			.version = std::move(packageVersion),
-			.type = getPackageType(aikidoPackage.language),
+			.name = package.include,
+			.version = package.version,
+			.type = PackageType::DotNet,
 			.assignedTeam = {},
 			.status = PackageStatus::Unknown,
 			.lastChecked = {},
@@ -131,7 +124,7 @@ void PackageTableModel::loadItems(const QList<AikidoPackage> &aikidoPackages)
 
 	endInsertRows();
 
-	if (--repositoryCount == 0)
+	if (--repositoryFileCount == 0)
 	{
 		sort(0, Qt::AscendingOrder);
 	}
@@ -146,17 +139,11 @@ void PackageTableModel::loadItems()
 		return;
 	}
 
-	aikidoApi.repositories([this](const QList<AikidoCodeRepository> &aikidoRepositories)
-	{
-		repositoryCount = aikidoRepositories.size();
+	repositoryFileCount = devOpsApi.repositoryFileCount(QStringLiteral(".csproj"));
 
-		for (const auto &aikidoRepository: aikidoRepositories)
-		{
-			aikidoApi.packages(aikidoRepository.id, [this](const QList<AikidoPackage> &aikidoPackages)
-			{
-				loadItems(aikidoPackages);
-			});
-		}
+	devOpsApi.getPackageReferences([this](const QList<DotNet::PackageReference> &packages)
+	{
+		loadItems(packages);
 	});
 }
 

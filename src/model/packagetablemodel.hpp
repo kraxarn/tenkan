@@ -6,6 +6,7 @@
 #include "api/aikidoapi.hpp"
 #include "data/package.hpp"
 #include "model/packagetableproxymodel.hpp"
+#include "api/devopsapi.hpp"
 
 class PackageTableModel : public QAbstractListModel
 {
@@ -44,16 +45,17 @@ private:
 
 	const Config config;
 	AikidoApi aikidoApi;
+	DevOpsApi devOpsApi;
 
 	QHash<QString, QList<Package>> packages;
 	QStringList packageOrder;
-	qsizetype repositoryCount = -1;
+	qsizetype repositoryFileCount = -1;
 
 	static auto getPackageType(const QString &langauge) -> PackageType;
 
 	static auto getPackageSourceIcon(PackageType type) -> QString;
 
-	void loadItems(const QList<AikidoPackage> &aikidoPackages);
+	void loadItems(const QList<DotNet::PackageReference> &dotNetPackages);
 
 	void addPackage(const Package &package);
 

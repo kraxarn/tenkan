@@ -2,6 +2,7 @@
 
 #include <QElapsedTimer>
 #include <QFileInfo>
+#include <QString>
 
 #include "config.hpp"
 
@@ -156,6 +157,12 @@ void PackageTableModel::loadItems()
 				});
 		}
 	}
+
+	devOpsApi.teams([this](const QList<Team> &teams)
+	{
+		this->teams = teams;
+		emit teamsChanged();
+	});
 }
 
 auto PackageTableModel::getPackageType(const QString &langauge) -> PackageType
@@ -190,4 +197,23 @@ auto PackageTableModel::getPackageSourceIcon(const PackageType type) -> QString
 		default:
 			return {};
 	}
+}
+
+auto PackageTableModel::getTeams() const -> QStringList
+{
+	QStringList teamNames;
+	teamNames.reserve(teams.size());
+
+	for (auto &team: teams)
+	{
+		if (!team.name.startsWith(QStringLiteral("Team")))
+		{
+			continue;
+		}
+
+		const auto teamName = QString(team.name).replace(QChar('-'), QChar('/'));
+		teamNames.append(teamName);
+	}
+
+	return teamNames;
 }

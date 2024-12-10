@@ -1,6 +1,7 @@
 #include "api/devopsapi.hpp"
 
 #include <QNetworkReply>
+#include <QJsonArray>
 
 #include "parser/csprojparser.hpp"
 
@@ -12,8 +13,8 @@ DevOpsApi::DevOpsApi(const Config &config, QObject *parent)
 
 auto DevOpsApi::baseUrl() const -> QString
 {
-	return QStringLiteral("https://dev.azure.com/%1/%2/_apis")
-		.arg(config.organization, config.project);
+	return QStringLiteral("https://dev.azure.com/%1")
+		.arg(config.organization);
 }
 
 auto DevOpsApi::headers() const -> QHttpHeaders
@@ -33,8 +34,8 @@ auto DevOpsApi::accessToken() const -> QString
 void DevOpsApi::getFileContent(const QString &repositoryId, const QString &path,
 	const std::function<void(QByteArray)> &callback) const
 {
-	const auto url = QStringLiteral("/git/repositories/%1/items?path=%2")
-		.arg(repositoryId, path);
+	const auto url = QStringLiteral("/%1/_apis/git/repositories/%2/items?path=%3")
+		.arg(config.project, repositoryId, path);
 
 	const auto request = prepareRequest(url);
 	auto *reply = http()->get(request);
@@ -49,6 +50,35 @@ void DevOpsApi::getPackageReferences(const QString &repositoryId, const QString 
 	{
 		CsProjParser parser(response);
 		callback(parser.getPackageReferences());
+	});
+}
+
+void DevOpsApi::teams(const std::function<void(QList<Team>)> &callback) const
+{
+	const auto url = QStringLiteral("/_apis/projects/%1/teams?api-version=7.1")
+		.arg(config.project);
+
+	const auto request = prepareRequest(url);
+	auto *reply = http()->get(request);
+
+	await(reply, [callback](const QByteArray &response)
+	{
+		const auto json = QJsonDocument::fromJson(response);
+		const auto count = json[QStringLiteral("count")].toInt();
+
+		QList<Team> teams;
+		teams.reserve(count);
+
+		for (const auto &value: json[QStringLiteral("value")].toArray())
+		{
+			teams.append({
+				.id = value[QStringLiteral("id")].toString(),
+				.name = value[QStringLiteral("name")].toString(),
+				.description = value[QStringLiteral("description")].toString(),
+			});
+		}
+
+		callback(std::move(teams));
 	});
 }
 

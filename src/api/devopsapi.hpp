@@ -4,6 +4,7 @@
 #include "data/dotnet/packagereference.hpp"
 #include "data/nodejs/package.hpp"
 #include "api/api.hpp"
+#include "data/team.hpp"
 
 class DevOpsApi : public Api
 {
@@ -26,6 +27,8 @@ public:
 
 	[[nodiscard]]
 	auto repositoryFiles(const QString &repositoryId, const QString &suffix) const -> QStringList;
+
+	void teams(const std::function<void(QList<Team>)> &callback) const;
 
 protected:
 	[[nodiscard]]

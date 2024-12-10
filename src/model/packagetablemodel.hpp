@@ -13,6 +13,8 @@ class PackageTableModel : public QAbstractListModel
 	Q_OBJECT
 	QML_ELEMENT
 
+	Q_PROPERTY(QStringList teams READ getTeams NOTIFY teamsChanged)
+
 public:
 	explicit PackageTableModel(QObject *parent = nullptr);
 
@@ -28,6 +30,12 @@ public:
 	Q_INVOKABLE void sort(int column, Qt::SortOrder order) override;
 
 	Q_INVOKABLE void loadItems();
+
+	[[nodiscard]]
+	auto getTeams() const -> QStringList;
+
+signals:
+	void teamsChanged();
 
 private:
 	enum class ItemRole: int
@@ -50,6 +58,8 @@ private:
 	QHash<QString, QList<Package>> packages;
 	QStringList packageOrder;
 	qsizetype repositoryFileCount = -1;
+
+	QList<Team> teams;
 
 	static auto getPackageType(const QString &langauge) -> PackageType;
 

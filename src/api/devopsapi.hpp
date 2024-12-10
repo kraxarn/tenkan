@@ -16,8 +16,8 @@ public:
 	void getPackageReferences(const QString &repositoryId, const QString &path,
 		const std::function<void(QList<DotNet::PackageReference>)> &callback) const;
 
-	[[nodiscard]]
-	auto getPackages() const -> QList<NodeJs::Package>;
+	void packages(const QString &repositoryId, const QString &path,
+		const std::function<void(QList<NodeJs::Package>)> &callback) const;
 
 	[[nodiscard]]
 	auto repositoryFileCount(const QString &suffix) const -> qsizetype;

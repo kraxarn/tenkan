@@ -2,8 +2,10 @@
 
 #include <QNetworkReply>
 #include <QJsonArray>
+#include <QDir>
 
 #include "parser/csprojparser.hpp"
+#include "parser/packagejsonparser.hpp"
 
 DevOpsApi::DevOpsApi(const Config &config, QObject *parent)
 	: Api(parent),
@@ -53,6 +55,37 @@ void DevOpsApi::getPackageReferences(const QString &repositoryId, const QString 
 	});
 }
 
+void DevOpsApi::packages(const QString &repositoryId, const QString &path,
+	const std::function<void(QList<NodeJs::Package>)> &callback) const
+{
+	getFileContent(repositoryId, path, [this, repositoryId, path, callback](const QByteArray &response)
+	{
+		QString lockName;
+		switch (PackageJsonParser::packageManager(response))
+		{
+			case NodeJsPackageManager::Npm:
+				lockName = "package-lock.json";
+				break;
+
+			case NodeJsPackageManager::Yarn:
+				lockName = "yarn.lock";
+				break;
+
+			case NodeJsPackageManager::Unknown:
+				qFatal() << "Unknown package manager in package.json";
+				break;
+		}
+
+		const auto lockPath = QFileInfo(path).dir().filePath(lockName);
+		getFileContent(repositoryId, lockPath, [response, callback](const QByteArray &lockResponse)
+		{
+			const PackageJsonParser parser(response, lockResponse);
+			callback(parser.packages());
+		});
+	});
+}
+
+
 void DevOpsApi::teams(const std::function<void(QList<Team>)> &callback) const
 {
 	const auto url = QStringLiteral("/_apis/projects/%1/teams?api-version=7.1")
@@ -69,7 +102,7 @@ void DevOpsApi::teams(const std::function<void(QList<Team>)> &callback) const
 		QList<Team> teams;
 		teams.reserve(count);
 
-		for (const auto &value: json[QStringLiteral("value")].toArray())
+		for (const auto &value : json[QStringLiteral("value")].toArray())
 		{
 			teams.append({
 				.id = value[QStringLiteral("id")].toString(),
@@ -86,9 +119,9 @@ auto DevOpsApi::repositoryFileCount(const QString &suffix) const -> qsizetype
 {
 	qsizetype count = 0;
 
-	for (const auto &repository: config.repositories)
+	for (const auto &repository : config.repositories)
 	{
-		for (const auto &path: repository.files)
+		for (const auto &path : repository.files)
 		{
 			if (path.endsWith(suffix))
 			{
@@ -105,7 +138,7 @@ auto DevOpsApi::repositoryIds() const -> QStringList
 	QStringList ids;
 	ids.reserve(config.repositories.size());
 
-	for (const auto &repository: config.repositories)
+	for (const auto &repository : config.repositories)
 	{
 		ids.append(repository.id);
 	}
@@ -116,7 +149,7 @@ auto DevOpsApi::repositoryIds() const -> QStringList
 
 auto DevOpsApi::repositoryFiles(const QString &repositoryId, const QString &suffix) const -> QStringList
 {
-	for (const auto &repository: config.repositories)
+	for (const auto &repository : config.repositories)
 	{
 		if (repository.id != repositoryId)
 		{
@@ -126,7 +159,7 @@ auto DevOpsApi::repositoryFiles(const QString &repositoryId, const QString &suff
 		QStringList files;
 		files.reserve(repository.files.size());
 
-		for (const auto &path: repository.files)
+		for (const auto &path : repository.files)
 		{
 			if (path.endsWith(suffix))
 			{

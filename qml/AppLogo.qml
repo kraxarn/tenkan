@@ -18,11 +18,5 @@ ToolButton {
 			text: "About..."
 			onClicked: aboutDialog.open()
 		}
-
-		MenuSeparator {}
-
-		MenuItem {
-			text: "Quit"
-		}
 	}
 }

@@ -65,9 +65,20 @@ ListView {
 				text: model.lastChecked || "<empty>"
 			}
 
-			Label {
+			ToolButton {
 				Layout.rightMargin: 16
-				text: model.actions || "<empty>"
+				icon.source: "qrc:/res/icon/dots-horizontal.svg"
+				onClicked: actionsMenu.open()
+
+				Menu {
+					id: actionsMenu
+					contentWidth: 300
+
+					MenuItem {
+						text: `Open ${model.filePath}`
+						icon.source: "qrc:/res/icon/file-code.svg"
+					}
+				}
 			}
 		}
 	}

@@ -45,8 +45,8 @@ auto PackageTableModel::data(const QModelIndex &index, const int role) const -> 
 		case ItemRole::LastChecked:
 			return QStringLiteral("(never)");
 
-		case ItemRole::Actions:
-			return QStringLiteral("...");
+		case ItemRole::FilePath:
+			return package.filePath;
 
 		default:
 			return {};
@@ -62,7 +62,7 @@ auto PackageTableModel::roleNames() const -> QHash<int, QByteArray>
 		{static_cast<int>(ItemRole::AssignedTeam), "assignedTeam"},
 		{static_cast<int>(ItemRole::Status), "status"},
 		{static_cast<int>(ItemRole::LastChecked), "lastChecked"},
-		{static_cast<int>(ItemRole::Actions), "actions"},
+		{static_cast<int>(ItemRole::FilePath), "filePath"},
 	};
 }
 

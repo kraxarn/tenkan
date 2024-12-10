@@ -15,7 +15,9 @@ qt_add_qml_module(${PROJECT_NAME}
         res/font/RobotoFlex-Regular.ttf
         res/icon/alert.svg
         res/icon/clock-alert.svg
+        res/icon/dots-horizontal.svg
         res/icon/dot-net.svg
+        res/icon/file-code.svg
         res/icon/filter.svg
         res/icon/filter-outline.svg
         res/icon/nodejs.svg

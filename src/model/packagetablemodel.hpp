@@ -46,7 +46,7 @@ private:
 		AssignedTeam,
 		Status,
 		LastChecked,
-		Actions,
+		FilePath,
 	};
 
 	PackageTableProxyModel *proxyModel;

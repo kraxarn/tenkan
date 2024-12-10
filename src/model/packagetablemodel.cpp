@@ -141,10 +141,13 @@ void PackageTableModel::loadItems()
 
 	repositoryFileCount = devOpsApi.repositoryFileCount(QStringLiteral(".csproj"));
 
-	devOpsApi.getPackageReferences([this](const QList<DotNet::PackageReference> &packages)
+	for (const auto &repositoryId: devOpsApi.repositoryIds())
 	{
-		loadItems(packages);
-	});
+		devOpsApi.getPackageReferences(repositoryId, [this](const QList<DotNet::PackageReference> &packages)
+		{
+			loadItems(packages);
+		});
+	}
 }
 
 auto PackageTableModel::getPackageType(const QString &langauge) -> PackageType

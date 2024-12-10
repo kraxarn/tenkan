@@ -12,10 +12,13 @@ class DevOpsApi : public Api
 public:
 	DevOpsApi(const Config &config, QObject *parent);
 
-	void getPackageReferences(const std::function<void(QList<DotNet::PackageReference>)> &callback) const;
+	void getPackageReferences(const QString &repositoryId, const std::function<void(QList<DotNet::PackageReference>)> &callback) const;
 
 	[[nodiscard]]
 	auto getPackages() const -> QList<NodeJs::Package>;
+
+	[[nodiscard]]
+	auto repositoryIds() const -> QStringList;
 
 	[[nodiscard]]
 	auto repositoryFileCount(const QString &suffix) const -> qsizetype;

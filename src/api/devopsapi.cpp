@@ -42,10 +42,16 @@ void DevOpsApi::getFileContent(const QString &repositoryId, const QString &path,
 	await(reply, callback);
 }
 
-void DevOpsApi::getPackageReferences(const std::function<void(QList<DotNet::PackageReference>)> &callback) const
+void DevOpsApi::getPackageReferences(const QString &repositoryId,
+	const std::function<void(QList<DotNet::PackageReference>)> &callback) const
 {
 	for (const auto &repository: config.repositories)
 	{
+		if (repository.id != repositoryId)
+		{
+			continue;
+		}
+
 		for (const auto &path: repository.files)
 		{
 			if (!path.endsWith(".csproj"))
@@ -59,8 +65,24 @@ void DevOpsApi::getPackageReferences(const std::function<void(QList<DotNet::Pack
 				callback(parser.getPackageReferences());
 			});
 		}
+
+		break;
 	}
 }
+
+auto DevOpsApi::repositoryIds() const -> QStringList
+{
+	QStringList items;
+	items.reserve(config.repositories.size());
+
+	for (const auto &repository: config.repositories)
+	{
+		items.append(repository.id);
+	}
+
+	return items;
+}
+
 
 auto DevOpsApi::repositoryFileCount(const QString &suffix) const -> qsizetype
 {

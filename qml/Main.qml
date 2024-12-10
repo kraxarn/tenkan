@@ -15,8 +15,8 @@ ApplicationWindow {
 	flags: Qt.FramelessWindowHint
 
 	Material.theme: Material.Dark
-	Material.primary: "#1e1e2d"
-	Material.background: "#1a1a27"
+	Material.primary: "#1a1a27"
+	Material.background: "#1e1e2d"
 	Material.accent: "#a15bfc"
 
 	header: ToolBar {

@@ -47,9 +47,12 @@ ListView {
 				Menu {
 					id: teamMenu
 
-					MenuItem {
-						text: "Nothing here"
-						enabled: false
+					Repeater {
+						model: packageModel.teams
+
+						MenuItem {
+							text: modelData
+						}
 					}
 				}
 			}

@@ -15,4 +15,5 @@ using Package = struct package_t
 	QDateTime lastChecked;
 	QString source;
 	QString comment;
+	QString filePath;
 };

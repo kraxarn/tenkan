@@ -1,6 +1,7 @@
 #include "packagetablemodel.hpp"
 
 #include <QElapsedTimer>
+#include <QFileInfo>
 
 #include "config.hpp"
 
@@ -100,7 +101,7 @@ void PackageTableModel::addPackage(const Package &package)
 }
 
 
-void PackageTableModel::loadItems(const QList<DotNet::PackageReference> &dotNetPackages)
+void PackageTableModel::loadItems(const QString &fileName, const QList<DotNet::PackageReference> &dotNetPackages)
 {
 	QElapsedTimer timer;
 	timer.start();
@@ -119,6 +120,7 @@ void PackageTableModel::loadItems(const QList<DotNet::PackageReference> &dotNetP
 			.assignedTeam = {},
 			.status = PackageStatus::Unknown,
 			.lastChecked = {},
+			.filePath = fileName,
 		});
 	}
 
@@ -141,10 +143,19 @@ void PackageTableModel::loadItems()
 
 	repositoryFileCount = devOpsApi.repositoryFileCount(QStringLiteral(".csproj"));
 
-	devOpsApi.getPackageReferences([this](const QList<DotNet::PackageReference> &packages)
+	for (const auto &repositoryId: devOpsApi.repositoryIds())
 	{
-		loadItems(packages);
-	});
+		for (const auto &path: devOpsApi.repositoryFiles(repositoryId, QStringLiteral(".csproj")))
+		{
+			const auto fileName = QFileInfo(path).fileName();
+
+			devOpsApi.getPackageReferences(repositoryId, path,
+				[this, fileName](const QList<DotNet::PackageReference> &packages)
+				{
+					loadItems(fileName, packages);
+				});
+		}
+	}
 }
 
 auto PackageTableModel::getPackageType(const QString &langauge) -> PackageType

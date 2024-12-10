@@ -42,24 +42,14 @@ void DevOpsApi::getFileContent(const QString &repositoryId, const QString &path,
 	await(reply, callback);
 }
 
-void DevOpsApi::getPackageReferences(const std::function<void(QList<DotNet::PackageReference>)> &callback) const
+void DevOpsApi::getPackageReferences(const QString &repositoryId, const QString &path,
+	const std::function<void(QList<DotNet::PackageReference>)> &callback) const
 {
-	for (const auto &repository: config.repositories)
+	getFileContent(repositoryId, path, [callback](const QByteArray &response)
 	{
-		for (const auto &path: repository.files)
-		{
-			if (!path.endsWith(".csproj"))
-			{
-				continue;
-			}
-
-			getFileContent(repository.id, path, [callback](const QByteArray &response)
-			{
-				CsProjParser parser(response);
-				callback(parser.getPackageReferences());
-			});
-		}
-	}
+		CsProjParser parser(response);
+		callback(parser.getPackageReferences());
+	});
 }
 
 auto DevOpsApi::repositoryFileCount(const QString &suffix) const -> qsizetype
@@ -78,4 +68,44 @@ auto DevOpsApi::repositoryFileCount(const QString &suffix) const -> qsizetype
 	}
 
 	return count;
+}
+
+auto DevOpsApi::repositoryIds() const -> QStringList
+{
+	QStringList ids;
+	ids.reserve(config.repositories.size());
+
+	for (const auto &repository: config.repositories)
+	{
+		ids.append(repository.id);
+	}
+
+	return ids;
+}
+
+
+auto DevOpsApi::repositoryFiles(const QString &repositoryId, const QString &suffix) const -> QStringList
+{
+	for (const auto &repository: config.repositories)
+	{
+		if (repository.id != repositoryId)
+		{
+			continue;
+		}
+
+		QStringList files;
+		files.reserve(repository.files.size());
+
+		for (const auto &path: repository.files)
+		{
+			if (path.endsWith(suffix))
+			{
+				files.append(path);
+			}
+		}
+
+		return files;
+	}
+
+	return {};
 }

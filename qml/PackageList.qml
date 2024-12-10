@@ -75,8 +75,11 @@ ListView {
 					contentWidth: 300
 
 					MenuItem {
-						text: `Open ${model.filePath}`
+						text: `Open ${model.fileName}`
 						icon.source: "qrc:/res/icon/file-code.svg"
+
+						ToolTip.visible: down
+						ToolTip.text: model.filePath
 					}
 				}
 			}

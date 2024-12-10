@@ -48,6 +48,9 @@ auto PackageTableModel::data(const QModelIndex &index, const int role) const -> 
 		case ItemRole::FilePath:
 			return package.filePath;
 
+		case ItemRole::FileName:
+			return package.fileName;
+
 		default:
 			return {};
 	}
@@ -63,6 +66,7 @@ auto PackageTableModel::roleNames() const -> QHash<int, QByteArray>
 		{static_cast<int>(ItemRole::Status), "status"},
 		{static_cast<int>(ItemRole::LastChecked), "lastChecked"},
 		{static_cast<int>(ItemRole::FilePath), "filePath"},
+		{static_cast<int>(ItemRole::FileName), "fileName"},
 	};
 }
 
@@ -102,7 +106,7 @@ void PackageTableModel::addPackage(const Package &package)
 }
 
 
-void PackageTableModel::loadItems(const QString &fileName, const QList<DotNet::PackageReference> &dotNetPackages)
+void PackageTableModel::loadItems(const QString &filePath, const QList<DotNet::PackageReference> &dotNetPackages)
 {
 	QElapsedTimer timer;
 	timer.start();
@@ -121,7 +125,8 @@ void PackageTableModel::loadItems(const QString &fileName, const QList<DotNet::P
 			.assignedTeam = {},
 			.status = PackageStatus::Unknown,
 			.lastChecked = {},
-			.filePath = fileName,
+			.filePath = filePath,
+			.fileName = QFileInfo(filePath).fileName(),
 		});
 	}
 
@@ -148,12 +153,10 @@ void PackageTableModel::loadItems()
 	{
 		for (const auto &path: devOpsApi.repositoryFiles(repositoryId, QStringLiteral(".csproj")))
 		{
-			const auto fileName = QFileInfo(path).fileName();
-
 			devOpsApi.getPackageReferences(repositoryId, path,
-				[this, fileName](const QList<DotNet::PackageReference> &packages)
+				[this, path](const QList<DotNet::PackageReference> &packages)
 				{
-					loadItems(fileName, packages);
+					loadItems(path, packages);
 				});
 		}
 	}

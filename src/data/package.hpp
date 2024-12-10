@@ -16,4 +16,5 @@ using Package = struct package_t
 	QString source;
 	QString comment;
 	QString filePath;
+	QString fileName;
 };

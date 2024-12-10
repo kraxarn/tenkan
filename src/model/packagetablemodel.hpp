@@ -47,6 +47,7 @@ private:
 		Status,
 		LastChecked,
 		FilePath,
+		FileName,
 	};
 
 	PackageTableProxyModel *proxyModel;
@@ -65,7 +66,7 @@ private:
 
 	static auto getPackageSourceIcon(PackageType type) -> QString;
 
-	void loadItems(const QString &fileName, const QList<DotNet::PackageReference> &dotNetPackages);
+	void loadItems(const QString &filePath, const QList<DotNet::PackageReference> &dotNetPackages);
 
 	void addPackage(const Package &package);
 

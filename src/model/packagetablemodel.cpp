@@ -367,3 +367,30 @@ auto PackageTableModel::getStatusIcon(const PackageStatus packageStatus) -> QStr
 			return {};
 	}
 }
+
+auto PackageTableModel::getStatusText(PackageStatus packageStatus) -> QString
+{
+	switch (packageStatus)
+	{
+		case PackageStatus::Unknown:
+			return QStringLiteral("Updating status...");
+
+		case PackageStatus::UpToDate:
+			return QStringLiteral("Package is up to date, with no known vulnerabilities!");
+
+		case PackageStatus::Outdated:
+			return QStringLiteral("A new version is available");
+
+		case PackageStatus::Vulnerable:
+			return QStringLiteral("Package contains a known security vulnerability");
+
+		case PackageStatus::Unmaintained:
+			return QStringLiteral("Package is no longer actively maintained");
+
+		case PackageStatus::Deprecated:
+			return QStringLiteral("Package is deprecated and will no longer receive any updates");
+
+		default:
+			return {};
+	}
+}

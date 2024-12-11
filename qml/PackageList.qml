@@ -64,6 +64,9 @@ ListView {
 			ToolButton {
 				icon.source: `qrc:/res/icon/${packageModel.getStatusIcon(model.status)}.svg`
 				enabled: model.status > 0
+
+				ToolTip.visible: highlighted
+				ToolTip.text: packageModel.getStatusText(model.status)
 			}
 
 			Label {

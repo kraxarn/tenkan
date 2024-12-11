@@ -32,6 +32,8 @@ public:
 
 	Q_INVOKABLE static QString getStatusIcon(PackageStatus packageStatus);
 
+	Q_INVOKABLE static QString getStatusText(PackageStatus packageStatus);
+
 	[[nodiscard]]
 	auto getTeams() const -> QList<QVariant>;
 

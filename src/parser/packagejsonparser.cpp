@@ -44,7 +44,7 @@ auto PackageJsonParser::packages() const -> QList<NodeJs::Package>
 	{
 		packages.append({
 			.name = dependency,
-			.version = dependencies[dependency].toString(),
+			.version = getPackageVersion(dependency),
 			.dev = false,
 		});
 	}
@@ -53,10 +53,40 @@ auto PackageJsonParser::packages() const -> QList<NodeJs::Package>
 	{
 		packages.append({
 			.name = dependency,
-			.version = devDependencies[dependency].toString(),
+			.version = getPackageVersion(dependency),
 			.dev = true,
 		});
 	}
 
 	return packages;
+}
+
+auto PackageJsonParser::getPackageVersion(const QString &packageName) const -> QString
+{
+	if (lock.canConvert<QJsonDocument>())
+	{
+		const auto json = lock.toJsonDocument();
+		return getPackageVersion(json, packageName);
+	}
+
+	if (lock.canConvert<QString>())
+	{
+		const auto content = lock.toString();
+		return getPackageVersion(content, packageName);
+	}
+
+	qFatal() << "Unknown lock file type:" << lock.typeName();
+	return {};
+}
+
+auto PackageJsonParser::getPackageVersion(const QJsonDocument &json, const QString &packageName) -> QString
+{
+	const auto &packages = json[QStringLiteral("packages")].toObject();
+	const auto &package = packages[QStringLiteral("node_modules/%1").arg(packageName)].toObject();
+	return package[QStringLiteral("version")].toString();
+}
+
+auto PackageJsonParser::getPackageVersion(const QString &content, const QString &packageName) -> QString
+{
+	return {};
 }

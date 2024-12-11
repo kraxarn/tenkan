@@ -18,4 +18,13 @@ public:
 private:
 	QJsonDocument package;
 	QVariant lock;
+
+	[[nodiscard]]
+	auto getPackageVersion(const QString &packageName) const -> QString;
+
+	[[nodiscard]]
+	static auto getPackageVersion(const QJsonDocument &json, const QString &packageName) -> QString;
+
+	[[nodiscard]]
+	static auto getPackageVersion(const QString &content, const QString &packageName) -> QString;
 };

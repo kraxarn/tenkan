@@ -79,7 +79,7 @@ ListView {
 						icon.source: "qrc:/res/icon/file-code.svg"
 
 						ToolTip.visible: down
-						ToolTip.text: model.filePath || model.fileName
+						ToolTip.text: model.filePath || model.fileName || ""
 					}
 				}
 			}

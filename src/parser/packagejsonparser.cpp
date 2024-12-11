@@ -6,13 +6,15 @@
 PackageJsonParser::PackageJsonParser(const QByteArray &packageData, const QByteArray &lockData)
 	: package(QJsonDocument::fromJson(packageData))
 {
-	const auto lockJson = QJsonDocument::fromJson(lockData);
-
-	lock = lockJson.isNull()
-		? QVariant(QString(lockData))
-		: QVariant(lockJson);
+	if (const auto lockJson = QJsonDocument::fromJson(lockData); !lockJson.isNull())
+	{
+		parseLockFile(lockJson);
+	}
+	else
+	{
+		parseLockFile(QString(lockData));
+	}
 }
-
 
 auto PackageJsonParser::packageManager(const QByteArray &data) -> NodeJsPackageManager
 {
@@ -44,7 +46,7 @@ auto PackageJsonParser::packages() const -> QList<NodeJs::Package>
 	{
 		packages.append({
 			.name = dependency,
-			.version = getPackageVersion(dependency),
+			.version = packageVersions.value(dependency),
 			.dev = false,
 		});
 	}
@@ -53,7 +55,7 @@ auto PackageJsonParser::packages() const -> QList<NodeJs::Package>
 	{
 		packages.append({
 			.name = dependency,
-			.version = getPackageVersion(dependency),
+			.version = packageVersions.value(dependency),
 			.dev = true,
 		});
 	}
@@ -61,34 +63,28 @@ auto PackageJsonParser::packages() const -> QList<NodeJs::Package>
 	return packages;
 }
 
-auto PackageJsonParser::getPackageVersion(const QString &packageName) const -> QString
-{
-	if (lock.canConvert<QJsonDocument>())
-	{
-		const auto json = lock.toJsonDocument();
-		return getPackageVersion(json, packageName);
-	}
-
-	if (lock.canConvert<QString>())
-	{
-		const auto content = lock.toString();
-		return getPackageVersion(content, packageName);
-	}
-
-	qFatal() << "Unknown lock file type:" << lock.typeName();
-	return {};
-}
-
-auto PackageJsonParser::getPackageVersion(const QJsonDocument &json, const QString &packageName) -> QString
+auto PackageJsonParser::parseLockFile(const QJsonDocument &json) -> void
 {
 	const auto &packages = json[QStringLiteral("packages")].toObject();
-	const auto &package = packages[QStringLiteral("node_modules/%1").arg(packageName)].toObject();
-	return package[QStringLiteral("version")].toString();
+
+	for (const auto &key : packages.keys())
+	{
+		const auto prefix = QStringLiteral("node_modules/");
+		if (!key.startsWith(prefix))
+		{
+			continue;
+		}
+
+		const auto name = key.right(key.size() - prefix.size());
+		const auto version = packages[key][QStringLiteral("version")].toString();
+
+		packageVersions.insert(name, version);
+	}
 }
 
-auto PackageJsonParser::getPackageVersion(const QString &content, const QString &packageName) -> QString
+auto PackageJsonParser::parseLockFile(const QString &content) -> void
 {
-	QRegularExpression exp(
+	const QRegularExpression exp(
 		QStringLiteral("(\"|)(?<name>[a-zA-Z0-9\\/@\\-\\.]+)@.*\\s+version\\s*\"(?<version>[0-9\\.]+)\"")
 	);
 
@@ -98,17 +94,15 @@ auto PackageJsonParser::getPackageVersion(const QString &content, const QString 
 	}
 
 	qsizetype pos = 0;
-	while (pos < content.size())
+	while (pos < content.size() && pos >= 0)
 	{
 		const auto match = exp.match(content, pos);
-		if (match.captured("name") == packageName)
-		{
-			return match.captured("version");
-		}
+
+		const auto name = match.captured("name");
+		const auto version = match.captured("version");
+
+		packageVersions.insert(name, version);
 
 		pos = match.capturedEnd();
 	}
-
-	qWarning() << "No version found for package:" << packageName;
-	return {};
 }

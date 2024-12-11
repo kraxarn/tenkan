@@ -17,14 +17,9 @@ public:
 
 private:
 	QJsonDocument package;
-	QVariant lock;
+	QMap<QString, QString> packageVersions;
 
-	[[nodiscard]]
-	auto getPackageVersion(const QString &packageName) const -> QString;
+	void parseLockFile(const QJsonDocument &json);
 
-	[[nodiscard]]
-	static auto getPackageVersion(const QJsonDocument &json, const QString &packageName) -> QString;
-
-	[[nodiscard]]
-	static auto getPackageVersion(const QString &content, const QString &packageName) -> QString;
+	void parseLockFile(const QString &content);
 };

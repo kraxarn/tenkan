@@ -241,10 +241,10 @@ auto PackageTableModel::getPackageSourceIcon(const PackageType type) -> QString
 	}
 }
 
-auto PackageTableModel::getTeams() const -> QStringList
+auto PackageTableModel::getTeams() const -> QList<QVariant>
 {
-	QStringList teamNames;
-	teamNames.reserve(teams.size());
+	QList<QVariant> teamDatas;
+	teamDatas.reserve(teams.size());
 
 	for (const auto &team : teams)
 	{
@@ -254,10 +254,15 @@ auto PackageTableModel::getTeams() const -> QStringList
 		}
 
 		const auto teamName = QString(team.name).replace(QChar('-'), QChar('/'));
-		teamNames.append(teamName);
+
+		QMap<QString, QVariant> data;
+		data[QStringLiteral("id")] = team.id;
+		data[QStringLiteral("name")] = teamName;
+
+		teamDatas.append(data);
 	}
 
-	return teamNames;
+	return teamDatas;
 }
 
 auto PackageTableModel::parseVersionNumber(const QString &version) -> QVersionNumber

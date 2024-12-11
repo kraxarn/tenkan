@@ -55,7 +55,7 @@ ListView {
 						model: packageModel.teams
 
 						MenuItem {
-							text: modelData
+							text: modelData.name
 						}
 					}
 				}

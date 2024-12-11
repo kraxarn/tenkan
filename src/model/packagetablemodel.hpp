@@ -1,7 +1,6 @@
 #pragma once
 
 #include <qqml.h>
-#include <QAbstractTableModel>
 
 #include "api/aikidoapi.hpp"
 #include "data/package.hpp"
@@ -13,7 +12,7 @@ class PackageTableModel : public QAbstractListModel
 	Q_OBJECT
 	QML_ELEMENT
 
-	Q_PROPERTY(QStringList teams READ getTeams NOTIFY teamsChanged)
+	Q_PROPERTY(QList<QVariant> teams READ getTeams NOTIFY teamsChanged)
 
 public:
 	explicit PackageTableModel(QObject *parent = nullptr);
@@ -32,7 +31,7 @@ public:
 	Q_INVOKABLE void loadItems();
 
 	[[nodiscard]]
-	auto getTeams() const -> QStringList;
+	auto getTeams() const -> QList<QVariant>;
 
 signals:
 	void teamsChanged();

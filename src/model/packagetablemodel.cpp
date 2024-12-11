@@ -281,8 +281,6 @@ auto PackageTableModel::parseVersionNumber(const QString &version) -> QVersionNu
 		seg.append(result);
 	}
 
-	qInfo() << version << parts << seg;
-
 	return QVersionNumber(seg);
 }
 

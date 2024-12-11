@@ -8,7 +8,7 @@
 using Package = struct package_t
 {
 	QString name;
-	QString version;
+	QVersionNumber version;
 	PackageType type;
 	QString assignedTeam;
 	PackageStatus status;

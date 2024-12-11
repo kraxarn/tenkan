@@ -73,4 +73,6 @@ private:
 	void addPackage(const Package &package);
 
 	static auto removePrefix(const QString &str) -> QStringView;
+
+	static auto parseVersionNumber(const QString &version) -> QVersionNumber;
 };

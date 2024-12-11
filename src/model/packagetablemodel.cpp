@@ -115,7 +115,7 @@ void PackageTableModel::loadItems(const QString &filePath, const QList<DotNet::P
 	{
 		addPackage({
 			.name = package.include,
-			.version = package.version,
+			.version = parseVersionNumber(package.version),
 			.type = PackageType::DotNet,
 			.assignedTeam = {},
 			.status = PackageStatus::Unknown,
@@ -146,7 +146,7 @@ void PackageTableModel::loadItems(const QString &filePath, const QList<NodeJs::P
 
 		addPackage({
 			.name = package.name,
-			.version = package.version,
+			.version = parseVersionNumber(package.version),
 			.type = PackageType::NodeJs,
 			.assignedTeam = {},
 			.status = PackageStatus::Unknown,
@@ -258,4 +258,30 @@ auto PackageTableModel::getTeams() const -> QStringList
 	}
 
 	return teamNames;
+}
+
+auto PackageTableModel::parseVersionNumber(const QString &version) -> QVersionNumber
+{
+	const auto sep = QRegularExpression(QStringLiteral("[\\.-]"));
+	const auto parts = version.split(sep);
+
+	QList<int> seg;
+	seg.reserve(parts.size());
+
+	for (const auto &part : parts)
+	{
+		bool ok;
+		const int result = part.toInt(&ok);
+
+		if (!ok)
+		{
+			break;
+		}
+
+		seg.append(result);
+	}
+
+	qInfo() << version << parts << seg;
+
+	return QVersionNumber(seg);
 }

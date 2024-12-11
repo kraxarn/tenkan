@@ -1,10 +1,7 @@
 #include "packagetablemodel.hpp"
 
-#include <QElapsedTimer>
 #include <QFileInfo>
 #include <QString>
-
-#include "config.hpp"
 
 PackageTableModel::PackageTableModel(QObject *parent)
 	: QAbstractListModel(parent),
@@ -108,9 +105,6 @@ void PackageTableModel::addPackage(const Package &package)
 
 void PackageTableModel::loadItems(const QString &filePath, const QList<DotNet::PackageReference> &dotNetPackages)
 {
-	QElapsedTimer timer;
-	timer.start();
-
 	beginInsertRows({},
 		static_cast<int>(packages.size()),
 		static_cast<int>(packages.size() + dotNetPackages.length())
@@ -136,15 +130,10 @@ void PackageTableModel::loadItems(const QString &filePath, const QList<DotNet::P
 	{
 		sort(0, Qt::AscendingOrder);
 	}
-
-	qInfo() << "Loaded" << packages.size() << "packages in" << timer.elapsed() << "ms";
 }
 
 void PackageTableModel::loadItems(const QString &filePath, const QList<NodeJs::Package> &nodeJsPackages)
 {
-	QElapsedTimer timer;
-	timer.start();
-
 	beginInsertRows({},
 		static_cast<int>(packages.size()),
 		static_cast<int>(packages.size() + nodeJsPackages.length())
@@ -170,8 +159,6 @@ void PackageTableModel::loadItems(const QString &filePath, const QList<NodeJs::P
 	{
 		sort(0, Qt::AscendingOrder);
 	}
-
-	qInfo() << "Loaded" << packages.size() << "packages in" << timer.elapsed() << "ms";
 }
 
 void PackageTableModel::loadItems()

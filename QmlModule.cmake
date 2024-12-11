@@ -22,7 +22,11 @@ qt_add_qml_module(${PROJECT_NAME}
         res/icon/filter-outline.svg
         res/icon/nodejs.svg
         res/icon/package-variant.svg
-        res/icon/shield-alert.svg
+        res/icon/shield-alert-outline.svg
+        res/icon/shield-check-outline.svg
+        res/icon/shield-refresh-outline.svg
+        res/icon/shield-remove-outline.svg
+        res/icon/shield-sync-outline.svg
         res/icon/window-close.svg
         res/icon/window-minimize.svg
 )

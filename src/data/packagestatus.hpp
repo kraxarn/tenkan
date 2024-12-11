@@ -3,7 +3,7 @@
 enum class PackageStatus: uint8_t
 {
 	/**
-	* Unknown status
+	* Unknown status, or updating status
 	 */
 	Unknown = 0,
 
@@ -25,10 +25,10 @@ enum class PackageStatus: uint8_t
 	/**
 	* Hasn't been updated in a long time
 	*/
-	Unmaintained = 3,
+	Unmaintained = 4,
 
 	/**
 	* Package is considered deprecated and no longer receives updates
 	*/
-	Deprecated = 4,
+	Deprecated = 5,
 };

@@ -61,8 +61,9 @@ ListView {
 				}
 			}
 
-			Label {
-				text: model.status || "<empty>"
+			ToolButton {
+				icon.source: `qrc:/res/icon/${packageModel.getStatusIcon(model.status)}.svg`
+				enabled: model.status > 0
 			}
 
 			Label {

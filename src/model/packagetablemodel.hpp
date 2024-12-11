@@ -30,6 +30,8 @@ public:
 
 	Q_INVOKABLE void loadItems();
 
+	Q_INVOKABLE static QString getStatusIcon(PackageStatus packageStatus);
+
 	[[nodiscard]]
 	auto getTeams() const -> QList<QVariant>;
 

@@ -38,7 +38,7 @@ auto PackageTableModel::data(const QModelIndex &index, const int role) const -> 
 			return QStringLiteral("(no team)");
 
 		case ItemRole::Status:
-			return QStringLiteral("(awaiting)");
+			return static_cast<int>(items.at(0).status);
 
 		case ItemRole::LastChecked:
 			return QStringLiteral("(never)");
@@ -341,4 +341,29 @@ auto PackageTableModel::getFilePaths(const QList<Package> &packages) -> QList<QV
 	}
 
 	return paths;
+}
+
+auto PackageTableModel::getStatusIcon(const PackageStatus packageStatus) -> QString
+{
+	switch (packageStatus)
+	{
+		case PackageStatus::Unknown:
+			return QStringLiteral("shield-sync-outline");
+
+		case PackageStatus::UpToDate:
+			return QStringLiteral("shield-check-outline");
+
+		case PackageStatus::Outdated:
+			return QStringLiteral("shield-refresh-outline");
+
+		case PackageStatus::Vulnerable:
+			return QStringLiteral("shield-alert-outline");
+
+		case PackageStatus::Unmaintained:
+		case PackageStatus::Deprecated:
+			return QStringLiteral("shield-remove-outline");
+
+		default:
+			return {};
+	}
 }

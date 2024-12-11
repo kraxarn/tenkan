@@ -49,6 +49,9 @@ auto PackageTableModel::data(const QModelIndex &index, const int role) const -> 
 		case ItemRole::FileName:
 			return items.at(0).fileName;
 
+		case ItemRole::PackageUrl:
+			return getPackageUrl(items.at(0));
+
 		default:
 			return {};
 	}
@@ -65,6 +68,7 @@ auto PackageTableModel::roleNames() const -> QHash<int, QByteArray>
 		{static_cast<int>(ItemRole::LastChecked), "lastChecked"},
 		{static_cast<int>(ItemRole::FilePath), "filePath"},
 		{static_cast<int>(ItemRole::FileName), "fileName"},
+		{static_cast<int>(ItemRole::PackageUrl), "packageUrl"},
 	};
 }
 
@@ -302,4 +306,21 @@ auto PackageTableModel::getVersionRange(const QList<Package> &packages) -> QStri
 
 	return QStringLiteral("%1 - %2")
 		.arg(min.toString(), max.toString());
+}
+
+auto PackageTableModel::getPackageUrl(const Package &package) -> QUrl
+{
+	switch (package.type)
+	{
+		case PackageType::DotNet:
+			return QUrl(QStringLiteral("https://www.nuget.org/packages/%1")
+				.arg(package.name));
+
+		case PackageType::NodeJs:
+			return QUrl(QStringLiteral("https://www.npmjs.com/package/%2")
+				.arg(package.name));
+
+		default:
+			return {};
+	}
 }

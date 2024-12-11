@@ -38,6 +38,7 @@ ListView {
 
 			ToolButton {
 				icon.source: model.packageSource ? `qrc:/res/icon/${model.packageSource}.svg` : undefined
+				onClicked: Qt.openUrlExternally(model.packageUrl)
 			}
 
 			ToolButton {

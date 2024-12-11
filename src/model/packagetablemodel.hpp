@@ -48,6 +48,7 @@ private:
 		LastChecked,
 		FilePath,
 		FileName,
+		PackageUrl,
 	};
 
 	PackageTableProxyModel *proxyModel;
@@ -77,4 +78,6 @@ private:
 	static auto parseVersionNumber(const QString &version) -> QVersionNumber;
 
 	static auto getVersionRange(const QList<Package> &packages) -> QString;
+
+	static auto getPackageUrl(const Package &package) -> QUrl;
 };

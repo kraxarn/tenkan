@@ -8,7 +8,8 @@ PackageTableModel::PackageTableModel(QObject *parent)
 	: QAbstractListModel(parent),
 	proxyModel(new PackageTableProxyModel(this)),
 	aikidoApi(config, this),
-	devOpsApi(config, this)
+	devOpsApi(config, this),
+	npmApi(this)
 {
 	proxyModel->setSourceModel(this);
 }
@@ -289,6 +290,19 @@ auto PackageTableModel::parseVersionNumber(const QString &version) -> QVersionNu
 	return QVersionNumber(seg);
 }
 
+auto PackageTableModel::getVersion(const QList<Package> &packages) -> QVersionNumber
+{
+	QVersionNumber version(packages.at(0).version);
+
+	for (auto iter = packages.begin() + 1; iter != packages.end(); ++iter)
+	{
+		version = qMin(version, iter->version);
+	}
+
+	return version;
+}
+
+
 auto PackageTableModel::getVersionRange(const QList<Package> &packages) -> QString
 {
 	QVersionNumber min(packages.at(0).version);
@@ -392,5 +406,63 @@ auto PackageTableModel::getStatusText(PackageStatus packageStatus) -> QString
 
 		default:
 			return {};
+	}
+}
+
+void PackageTableModel::updatePackageStatus(const QString &packageName, const PackageStatus status)
+{
+	emit layoutAboutToBeChanged();
+
+	for (auto &package : packages[packageName])
+	{
+		package.status = status;
+	}
+
+	emit layoutChanged();
+}
+
+void PackageTableModel::updatePackageStatus(const NpmPackageInfo &info)
+{
+	if (!info.deprecated.isEmpty())
+	{
+		updatePackageStatus(info.name, PackageStatus::Deprecated);
+		return;
+	}
+
+	const auto &items = packages[info.name];
+
+	if (getVersion(items) != parseVersionNumber(info.version))
+	{
+		updatePackageStatus(info.name, PackageStatus::Outdated);
+		return;
+	}
+
+	if (info.modified.daysTo(QDateTime::currentDateTimeUtc()) >= maxPackageAge)
+	{
+		updatePackageStatus(info.name, PackageStatus::Unmaintained);
+		return;
+	}
+
+	updatePackageStatus(info.name, PackageStatus::UpToDate);
+}
+
+void PackageTableModel::updateStatus(const QString &packageName)
+{
+	const auto &package = packages[packageName].at(0);
+
+	switch (package.type)
+	{
+		case PackageType::DotNet:
+			break;
+
+		case PackageType::NodeJs:
+			npmApi.info(packageName, [this](const NpmPackageInfo &info)
+			{
+				updatePackageStatus(info);
+			});
+			break;
+
+		case PackageType::Unknown:
+			break;
 	}
 }

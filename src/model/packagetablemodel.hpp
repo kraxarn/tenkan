@@ -6,6 +6,7 @@
 #include "data/package.hpp"
 #include "model/packagetableproxymodel.hpp"
 #include "api/devopsapi.hpp"
+#include "api/npmapi.hpp"
 
 class PackageTableModel : public QAbstractListModel
 {
@@ -34,6 +35,8 @@ public:
 
 	Q_INVOKABLE static QString getStatusText(PackageStatus packageStatus);
 
+	Q_INVOKABLE void updateStatus(const QString &packageName);
+
 	[[nodiscard]]
 	auto getTeams() const -> QList<QVariant>;
 
@@ -41,6 +44,8 @@ signals:
 	void teamsChanged();
 
 private:
+	static constexpr quint64 maxPackageAge = 365 * 2;
+
 	enum class ItemRole: int
 	{
 		PackageName = Qt::UserRole + 1,
@@ -58,6 +63,7 @@ private:
 	const Config config;
 	AikidoApi aikidoApi;
 	DevOpsApi devOpsApi;
+	NpmApi npmApi;
 
 	QHash<QString, QList<Package>> packages;
 	QStringList packageOrder;
@@ -75,9 +81,15 @@ private:
 
 	void addPackage(const Package &package);
 
+	void updatePackageStatus(const QString &packageName, PackageStatus status);
+
+	void updatePackageStatus(const NpmPackageInfo &info);
+
 	static auto removePrefix(const QString &str) -> QStringView;
 
 	static auto parseVersionNumber(const QString &version) -> QVersionNumber;
+
+	static auto getVersion(const QList<Package> &packages) -> QVersionNumber;
 
 	static auto getVersionRange(const QList<Package> &packages) -> QString;
 

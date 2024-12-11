@@ -46,12 +46,6 @@ auto PackageTableModel::data(const QModelIndex &index, const int role) const -> 
 		case ItemRole::FilePaths:
 			return getFilePaths(items);
 
-		case ItemRole::FilePath:
-			return items.at(0).filePath;
-
-		case ItemRole::FileName:
-			return items.at(0).fileName;
-
 		case ItemRole::PackageUrl:
 			return getPackageUrl(items.at(0));
 
@@ -70,8 +64,6 @@ auto PackageTableModel::roleNames() const -> QHash<int, QByteArray>
 		{static_cast<int>(ItemRole::Status), "status"},
 		{static_cast<int>(ItemRole::LastChecked), "lastChecked"},
 		{static_cast<int>(ItemRole::FilePaths), "filePaths"},
-		{static_cast<int>(ItemRole::FilePath), "filePath"},
-		{static_cast<int>(ItemRole::FileName), "fileName"},
 		{static_cast<int>(ItemRole::PackageUrl), "packageUrl"},
 	};
 }

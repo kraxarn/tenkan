@@ -47,8 +47,6 @@ private:
 		Status,
 		LastChecked,
 		FilePaths,
-		FilePath,
-		FileName,
 		PackageUrl,
 	};
 

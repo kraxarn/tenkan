@@ -46,6 +46,7 @@ private:
 		AssignedTeam,
 		Status,
 		LastChecked,
+		FilePaths,
 		FilePath,
 		FileName,
 		PackageUrl,
@@ -80,4 +81,6 @@ private:
 	static auto getVersionRange(const QList<Package> &packages) -> QString;
 
 	static auto getPackageUrl(const Package &package) -> QUrl;
+
+	static auto getFilePaths(const QList<Package> &packages) -> QList<QVariant>;
 };

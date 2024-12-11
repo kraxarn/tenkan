@@ -43,6 +43,9 @@ auto PackageTableModel::data(const QModelIndex &index, const int role) const -> 
 		case ItemRole::LastChecked:
 			return QStringLiteral("(never)");
 
+		case ItemRole::FilePaths:
+			return getFilePaths(items);
+
 		case ItemRole::FilePath:
 			return items.at(0).filePath;
 
@@ -66,6 +69,7 @@ auto PackageTableModel::roleNames() const -> QHash<int, QByteArray>
 		{static_cast<int>(ItemRole::AssignedTeam), "assignedTeam"},
 		{static_cast<int>(ItemRole::Status), "status"},
 		{static_cast<int>(ItemRole::LastChecked), "lastChecked"},
+		{static_cast<int>(ItemRole::FilePaths), "filePaths"},
 		{static_cast<int>(ItemRole::FilePath), "filePath"},
 		{static_cast<int>(ItemRole::FileName), "fileName"},
 		{static_cast<int>(ItemRole::PackageUrl), "packageUrl"},
@@ -323,4 +327,21 @@ auto PackageTableModel::getPackageUrl(const Package &package) -> QUrl
 		default:
 			return {};
 	}
+}
+
+auto PackageTableModel::getFilePaths(const QList<Package> &packages) -> QList<QVariant>
+{
+	QList<QVariant> paths;
+	paths.reserve(packages.size());
+
+	for (const auto &package : packages)
+	{
+		QMap<QString, QVariant> path;
+		path[QStringLiteral("path")] = package.filePath;
+		path[QStringLiteral("name")] = package.fileName;
+
+		paths.append(path);
+	}
+
+	return paths;
 }

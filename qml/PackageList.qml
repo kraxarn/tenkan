@@ -20,7 +20,10 @@ ListView {
 	}
 
 	delegate: ItemDelegate {
+		id: row
 		width: parent ? parent.width : 0
+
+		required property var model
 
 		RowLayout {
 			anchors.fill: parent
@@ -75,12 +78,16 @@ ListView {
 					id: actionsMenu
 					contentWidth: 350
 
-					MenuItem {
-						text: `Open ${model.fileName}`
-						icon.source: "qrc:/res/icon/file-code.svg"
+					Repeater {
+						model: row.model.filePaths
 
-						ToolTip.visible: down
-						ToolTip.text: model.filePath || model.fileName || ""
+						MenuItem {
+							text: `Open ${modelData.name}`
+							icon.source: "qrc:/res/icon/file-code.svg"
+
+							ToolTip.visible: down
+							ToolTip.text: modelData.path
+						}
 					}
 				}
 			}

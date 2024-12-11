@@ -68,6 +68,8 @@ private:
 
 	void loadItems(const QString &filePath, const QList<DotNet::PackageReference> &dotNetPackages);
 
+	void loadItems(const QString &filePath, const QList<NodeJs::Package> &nodeJsPackages);
+
 	void addPackage(const Package &package);
 
 	static auto removePrefix(const QString &str) -> QStringView;

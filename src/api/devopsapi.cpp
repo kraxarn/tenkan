@@ -115,19 +115,13 @@ void DevOpsApi::teams(const std::function<void(QList<Team>)> &callback) const
 	});
 }
 
-auto DevOpsApi::repositoryFileCount(const QString &suffix) const -> qsizetype
+auto DevOpsApi::repositoryFileCount() const -> qsizetype
 {
 	qsizetype count = 0;
 
 	for (const auto &repository : config.repositories)
 	{
-		for (const auto &path : repository.files)
-		{
-			if (path.endsWith(suffix))
-			{
-				count++;
-			}
-		}
+		count += repository.files.size();
 	}
 
 	return count;
@@ -147,7 +141,7 @@ auto DevOpsApi::repositoryIds() const -> QStringList
 }
 
 
-auto DevOpsApi::repositoryFiles(const QString &repositoryId, const QString &suffix) const -> QStringList
+auto DevOpsApi::repositoryFiles(const QString &repositoryId) const -> QStringList
 {
 	for (const auto &repository : config.repositories)
 	{
@@ -161,10 +155,7 @@ auto DevOpsApi::repositoryFiles(const QString &repositoryId, const QString &suff
 
 		for (const auto &path : repository.files)
 		{
-			if (path.endsWith(suffix))
-			{
-				files.append(path);
-			}
+			files.append(path);
 		}
 
 		return files;

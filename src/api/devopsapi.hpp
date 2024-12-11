@@ -20,13 +20,13 @@ public:
 		const std::function<void(QList<NodeJs::Package>)> &callback) const;
 
 	[[nodiscard]]
-	auto repositoryFileCount(const QString &suffix) const -> qsizetype;
+	auto repositoryFileCount() const -> qsizetype;
 
 	[[nodiscard]]
 	auto repositoryIds() const -> QStringList;
 
 	[[nodiscard]]
-	auto repositoryFiles(const QString &repositoryId, const QString &suffix) const -> QStringList;
+	auto repositoryFiles(const QString &repositoryId) const -> QStringList;
 
 	void teams(const std::function<void(QList<Team>)> &callback) const;
 

@@ -116,12 +116,46 @@ void PackageTableModel::loadItems(const QString &filePath, const QList<DotNet::P
 		static_cast<int>(packages.size() + dotNetPackages.length())
 	);
 
-	for (const auto &package: dotNetPackages)
+	for (const auto &package : dotNetPackages)
 	{
 		addPackage({
 			.name = package.include,
 			.version = package.version,
 			.type = PackageType::DotNet,
+			.assignedTeam = {},
+			.status = PackageStatus::Unknown,
+			.lastChecked = {},
+			.filePath = filePath,
+			.fileName = QFileInfo(filePath).fileName(),
+		});
+	}
+
+	endInsertRows();
+
+	if (--repositoryFileCount == 0)
+	{
+		sort(0, Qt::AscendingOrder);
+	}
+
+	qInfo() << "Loaded" << packages.size() << "packages in" << timer.elapsed() << "ms";
+}
+
+void PackageTableModel::loadItems(const QString &filePath, const QList<NodeJs::Package> &nodeJsPackages)
+{
+	QElapsedTimer timer;
+	timer.start();
+
+	beginInsertRows({},
+		static_cast<int>(packages.size()),
+		static_cast<int>(packages.size() + nodeJsPackages.length())
+	);
+
+	for (const auto &package : nodeJsPackages)
+	{
+		addPackage({
+			.name = package.name,
+			.version = package.version,
+			.type = PackageType::NodeJs,
 			.assignedTeam = {},
 			.status = PackageStatus::Unknown,
 			.lastChecked = {},
@@ -147,17 +181,32 @@ void PackageTableModel::loadItems()
 		return;
 	}
 
-	repositoryFileCount = devOpsApi.repositoryFileCount(QStringLiteral(".csproj"));
+	repositoryFileCount = devOpsApi.repositoryFileCount();
 
-	for (const auto &repositoryId: devOpsApi.repositoryIds())
+	for (const auto &repositoryId : devOpsApi.repositoryIds())
 	{
-		for (const auto &path: devOpsApi.repositoryFiles(repositoryId, QStringLiteral(".csproj")))
+		for (const auto &path : devOpsApi.repositoryFiles(repositoryId))
 		{
-			devOpsApi.getPackageReferences(repositoryId, path,
-				[this, path](const QList<DotNet::PackageReference> &packages)
+			if (path.endsWith(QStringLiteral(".csproj")))
+			{
+				devOpsApi.getPackageReferences(repositoryId, path,
+					[this, path](const QList<DotNet::PackageReference> &packages)
+					{
+						loadItems(path, packages);
+					});
+				continue;
+			}
+
+			if (path.endsWith(QStringLiteral("package.json")))
+			{
+				devOpsApi.packages(repositoryId, path, [this, path](const QList<NodeJs::Package> &packages)
 				{
 					loadItems(path, packages);
 				});
+				continue;
+			}
+
+			qFatal() << "Unknown path:" << path;
 		}
 	}
 
@@ -207,7 +256,7 @@ auto PackageTableModel::getTeams() const -> QStringList
 	QStringList teamNames;
 	teamNames.reserve(teams.size());
 
-	for (auto &team: teams)
+	for (const auto &team : teams)
 	{
 		if (!team.name.startsWith(QStringLiteral("Team")))
 		{

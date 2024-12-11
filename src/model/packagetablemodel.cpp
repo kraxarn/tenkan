@@ -453,6 +453,11 @@ void PackageTableModel::updatePackageStatus(const NpmPackageInfo &info)
 
 void PackageTableModel::updateStatus(const QString &packageName)
 {
+	if (packageName.isEmpty())
+	{
+		return;
+	}
+
 	const auto &package = packages[packageName].at(0);
 
 	if (package.status > PackageStatus::Unknown)

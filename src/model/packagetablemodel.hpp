@@ -75,4 +75,6 @@ private:
 	static auto removePrefix(const QString &str) -> QStringView;
 
 	static auto parseVersionNumber(const QString &version) -> QVersionNumber;
+
+	static auto getVersionRange(const QList<Package> &packages) -> QString;
 };

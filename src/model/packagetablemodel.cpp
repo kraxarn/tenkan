@@ -21,18 +21,18 @@ auto PackageTableModel::rowCount([[maybe_unused]] const QModelIndex &parent) con
 auto PackageTableModel::data(const QModelIndex &index, const int role) const -> QVariant
 {
 	const auto packageName = packageOrder.at(index.row());
-	const auto package = packages[packageName].at(0);
+	const auto &items = packages[packageName];
 
 	switch (static_cast<ItemRole>(role))
 	{
 		case ItemRole::PackageName:
-			return package.name;
+			return packageName;
 
 		case ItemRole::PackageVersion:
-			return package.version;
+			return getVersionRange(items);
 
 		case ItemRole::PackageSource:
-			return getPackageSourceIcon(package.type);
+			return getPackageSourceIcon(items.at(0).type);
 
 		case ItemRole::AssignedTeam:
 			return QStringLiteral("(no team)");
@@ -44,10 +44,10 @@ auto PackageTableModel::data(const QModelIndex &index, const int role) const -> 
 			return QStringLiteral("(never)");
 
 		case ItemRole::FilePath:
-			return package.filePath;
+			return items.at(0).filePath;
 
 		case ItemRole::FileName:
-			return package.fileName;
+			return items.at(0).fileName;
 
 		default:
 			return {};
@@ -284,4 +284,24 @@ auto PackageTableModel::parseVersionNumber(const QString &version) -> QVersionNu
 	qInfo() << version << parts << seg;
 
 	return QVersionNumber(seg);
+}
+
+auto PackageTableModel::getVersionRange(const QList<Package> &packages) -> QString
+{
+	QVersionNumber min(packages.at(0).version);
+	QVersionNumber max(min);
+
+	for (auto iter = packages.begin() + 1; iter != packages.end(); ++iter)
+	{
+		min = qMin(min, iter->version);
+		max = qMax(max, iter->version);
+	}
+
+	if (min == max)
+	{
+		return min.toString();
+	}
+
+	return QStringLiteral("%1 - %2")
+		.arg(min.toString(), max.toString());
 }

@@ -88,5 +88,27 @@ auto PackageJsonParser::getPackageVersion(const QJsonDocument &json, const QStri
 
 auto PackageJsonParser::getPackageVersion(const QString &content, const QString &packageName) -> QString
 {
+	QRegularExpression exp(
+		QStringLiteral("(\"|)(?<name>[a-zA-Z0-9\\/@\\-\\.]+)@.*\\s+version\\s*\"(?<version>[0-9\\.]+)\"")
+	);
+
+	if (!exp.isValid())
+	{
+		qFatal() << "Invalid regex:" << exp.errorString();
+	}
+
+	qsizetype pos = 0;
+	while (pos < content.size())
+	{
+		const auto match = exp.match(content, pos);
+		if (match.captured("name") == packageName)
+		{
+			return match.captured("version");
+		}
+
+		pos = match.capturedEnd();
+	}
+
+	qWarning() << "No version found for package:" << packageName;
 	return {};
 }

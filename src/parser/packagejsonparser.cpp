@@ -34,11 +34,29 @@ auto PackageJsonParser::packageManager(const QByteArray &data) -> NodeJsPackageM
 
 auto PackageJsonParser::packages() const -> QList<NodeJs::Package>
 {
-	const auto dependencies = package[QStringLiteral("dependencies")].toArray();
-	const auto devDependencies = package[QStringLiteral("devDependencies")].toArray();
+	const auto dependencies = package[QStringLiteral("dependencies")].toObject();
+	const auto devDependencies = package[QStringLiteral("devDependencies")].toObject();
 
 	QList<NodeJs::Package> packages;
 	packages.reserve(dependencies.size() + devDependencies.size());
+
+	for (const auto &dependency : dependencies.keys())
+	{
+		packages.append({
+			.name = dependency,
+			.version = dependencies[dependency].toString(),
+			.dev = false,
+		});
+	}
+
+	for (const auto &dependency : devDependencies.keys())
+	{
+		packages.append({
+			.name = dependency,
+			.version = devDependencies[dependency].toString(),
+			.dev = true,
+		});
+	}
 
 	return packages;
 }

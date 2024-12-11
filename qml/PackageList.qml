@@ -23,6 +23,10 @@ ListView {
 		id: row
 		width: parent ? parent.width : 0
 
+		Component.onCompleted: {
+			packageModel.updateStatus(model.packageName)
+		}
+
 		required property var model
 
 		RowLayout {
@@ -63,8 +67,7 @@ ListView {
 
 			ToolButton {
 				icon.source: `qrc:/res/icon/${packageModel.getStatusIcon(model.status)}.svg`
-				onClicked: packageModel.updateStatus(model.packageName)
-				//enabled: model.status > 0
+				enabled: model.status > 0
 
 				ToolTip.visible: highlighted
 				ToolTip.text: packageModel.getStatusText(model.status)

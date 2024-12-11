@@ -362,6 +362,7 @@ auto PackageTableModel::getStatusIcon(const PackageStatus packageStatus) -> QStr
 	switch (packageStatus)
 	{
 		case PackageStatus::Unknown:
+		case PackageStatus::Updating:
 			return QStringLiteral("shield-sync-outline");
 
 		case PackageStatus::UpToDate:
@@ -387,6 +388,7 @@ auto PackageTableModel::getStatusText(PackageStatus packageStatus) -> QString
 	switch (packageStatus)
 	{
 		case PackageStatus::Unknown:
+		case PackageStatus::Updating:
 			return QStringLiteral("Updating status...");
 
 		case PackageStatus::UpToDate:
@@ -453,13 +455,24 @@ void PackageTableModel::updateStatus(const QString &packageName)
 {
 	const auto &package = packages[packageName].at(0);
 
+	if (package.status > PackageStatus::Unknown)
+	{
+		return;
+	}
+
+	if (repositoryFileCount > 0)
+	{
+		return;
+	}
+
 	switch (package.type)
 	{
 		case PackageType::DotNet:
 			break;
 
 		case PackageType::NodeJs:
-			npmApi.info(packageName, [this](const NpmPackageInfo &info)
+			updatePackageStatus(packageName, PackageStatus::Updating);
+			npmApi.info(package.name, [this](const NpmPackageInfo &info)
 			{
 				updatePackageStatus(info);
 			});

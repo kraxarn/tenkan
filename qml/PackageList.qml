@@ -73,7 +73,7 @@ ListView {
 
 				Menu {
 					id: actionsMenu
-					contentWidth: 300
+					contentWidth: 350
 
 					MenuItem {
 						text: `Open ${model.fileName}`

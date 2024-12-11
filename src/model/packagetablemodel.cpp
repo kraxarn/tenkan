@@ -1,5 +1,6 @@
 #include "packagetablemodel.hpp"
 
+#include <QDir>
 #include <QFileInfo>
 #include <QString>
 
@@ -141,6 +142,8 @@ void PackageTableModel::loadItems(const QString &filePath, const QList<NodeJs::P
 
 	for (const auto &package : nodeJsPackages)
 	{
+		const auto fileInfo = QFileInfo(filePath);
+
 		addPackage({
 			.name = package.name,
 			.version = package.version,
@@ -149,7 +152,7 @@ void PackageTableModel::loadItems(const QString &filePath, const QList<NodeJs::P
 			.status = PackageStatus::Unknown,
 			.lastChecked = {},
 			.filePath = filePath,
-			.fileName = QFileInfo(filePath).fileName(),
+			.fileName = QStringLiteral("%1/%2").arg(fileInfo.dir().dirName(), fileInfo.fileName()),
 		});
 	}
 

@@ -411,14 +411,17 @@ auto PackageTableModel::getStatusText(PackageStatus packageStatus) -> QString
 
 void PackageTableModel::updatePackageStatus(const QString &packageName, const PackageStatus status)
 {
-	emit layoutAboutToBeChanged();
-
 	for (auto &package : packages[packageName])
 	{
 		package.status = status;
 	}
 
-	emit layoutChanged();
+	const auto row = packageOrder.indexOf(packageName);
+	const auto index = createIndex(row, 0);
+
+	emit dataChanged(index, index, {
+		static_cast<int>(ItemRole::Status),
+	});
 }
 
 void PackageTableModel::updatePackageStatus(const NpmPackageInfo &info)

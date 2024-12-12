@@ -7,6 +7,7 @@
 #include "model/packagetableproxymodel.hpp"
 #include "api/devopsapi.hpp"
 #include "api/npmapi.hpp"
+#include "api/nugetapi.hpp"
 
 class PackageTableModel : public QAbstractListModel
 {
@@ -64,6 +65,7 @@ private:
 	AikidoApi aikidoApi;
 	DevOpsApi devOpsApi;
 	NpmApi npmApi;
+	NuGetApi nuGetApi;
 
 	QHash<QString, QList<Package>> packages;
 	QStringList packageOrder;
@@ -84,6 +86,8 @@ private:
 	void updatePackageStatus(const QString &packageName, PackageStatus status);
 
 	void updatePackageStatus(const NpmPackageInfo &info);
+
+	void updatePackageStatus(const NuGetPackageInfo &info);
 
 	static auto removePrefix(const QString &str) -> QStringView;
 

@@ -9,7 +9,8 @@ PackageTableModel::PackageTableModel(QObject *parent)
 	proxyModel(new PackageTableProxyModel(this)),
 	aikidoApi(config, this),
 	devOpsApi(config, this),
-	npmApi(this)
+	npmApi(this),
+	nuGetApi(this)
 {
 	proxyModel->setSourceModel(this);
 }
@@ -451,6 +452,31 @@ void PackageTableModel::updatePackageStatus(const NpmPackageInfo &info)
 	updatePackageStatus(info.name, PackageStatus::UpToDate);
 }
 
+void PackageTableModel::updatePackageStatus(const NuGetPackageInfo &info)
+{
+	if (info.title.contains(QStringLiteral("deprecated"), Qt::CaseInsensitive))
+	{
+		updatePackageStatus(info.id, PackageStatus::Deprecated);
+		return;
+	}
+
+	const auto &items = packages[info.id];
+
+	if (getVersion(items) != parseVersionNumber(info.version))
+	{
+		updatePackageStatus(info.id, PackageStatus::Outdated);
+		return;
+	}
+
+	if (info.published.daysTo(QDateTime::currentDateTimeUtc()) >= maxPackageAge)
+	{
+		updatePackageStatus(info.id, PackageStatus::Unmaintained);
+		return;
+	}
+
+	updatePackageStatus(info.id, PackageStatus::UpToDate);
+}
+
 void PackageTableModel::updateStatus(const QString &packageName)
 {
 	if (packageName.isEmpty())
@@ -470,13 +496,24 @@ void PackageTableModel::updateStatus(const QString &packageName)
 		return;
 	}
 
+	updatePackageStatus(packageName, PackageStatus::Updating);
+
 	switch (package.type)
 	{
 		case PackageType::DotNet:
+			nuGetApi.info(package.name, [this, packageName](const NuGetPackageInfo &info)
+			{
+				if (info.id.isEmpty())
+				{
+					qWarning() << "Failed to fetch info for package:" << packageName;
+					return;
+				}
+
+				updatePackageStatus(info);
+			});
 			break;
 
 		case PackageType::NodeJs:
-			updatePackageStatus(packageName, PackageStatus::Updating);
 			npmApi.info(package.name, [this](const NpmPackageInfo &info)
 			{
 				updatePackageStatus(info);

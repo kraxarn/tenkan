@@ -12,6 +12,7 @@ qt_add_qml_module(${PROJECT_NAME}
         qml/SettingsDialog.qml
         qml/PackageList.qml
         qml/AppHeader.qml
+        qml/PackageStatusDialog.qml
         RESOURCES
         res/font/RobotoFlex-Regular.ttf
         res/icon/alert.svg

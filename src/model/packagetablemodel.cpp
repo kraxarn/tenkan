@@ -429,6 +429,14 @@ void PackageTableModel::updatePackageStatus(const QString &packageName, const Pa
 
 void PackageTableModel::updatePackageStatus(const NpmPackageInfo &info)
 {
+	packageInfos.insert(info.name, {
+		.name = info.name,
+		.version = parseVersionNumber(info.version),
+		.license = info.license,
+		.updated = info.modified,
+		.deprecated = !info.deprecated.isEmpty(),
+	});
+
 	if (!info.deprecated.isEmpty())
 	{
 		updatePackageStatus(info.name, PackageStatus::Deprecated);
@@ -454,7 +462,18 @@ void PackageTableModel::updatePackageStatus(const NpmPackageInfo &info)
 
 void PackageTableModel::updatePackageStatus(const QString &packageName, const NuGetPackageInfo &info)
 {
-	if (info.title.contains(QStringLiteral("deprecated"), Qt::CaseInsensitive))
+	const bool isDeprecated = info.title
+		.contains(QStringLiteral("deprecated"), Qt::CaseInsensitive);
+
+	packageInfos.insert(packageName, {
+		.name = packageName,
+		.version = parseVersionNumber(info.upper),
+		.license = info.licenseExpression,
+		.updated = info.commitTimeStamp,
+		.deprecated = isDeprecated,
+	});
+
+	if (isDeprecated)
 	{
 		updatePackageStatus(packageName, PackageStatus::Deprecated);
 		return;
@@ -517,4 +536,66 @@ void PackageTableModel::updateStatus(const QString &packageName)
 		case PackageType::Unknown:
 			break;
 	}
+}
+
+auto PackageTableModel::getPackageStatusInfo(const QString &packageName, const PackageStatus packageStatus) -> QString
+{
+	if (packageStatus == PackageStatus::UpToDate)
+	{
+		return QStringLiteral(
+			"Package is updated to the latest version, actively maintained,\n"
+			"and contains no known security vulnerabilities.\n"
+			"All good! :D"
+		);
+	}
+
+	if (packageStatus == PackageStatus::Vulnerable)
+	{
+		return QStringLiteral(
+			"Package contains a known security vulnerability!\n"
+			"Please update, or replace, as soon as possible!"
+		);
+	}
+
+	if (packageStatus == PackageStatus::Deprecated)
+	{
+		return QStringLiteral(
+			"Package has been explicitly deprecated by the developers.\n"
+			"Try to find a replacement package when possible."
+		);
+	}
+
+	if (packageName.isEmpty())
+	{
+		return {};
+	}
+
+	const auto &package = packages[packageName];
+	const auto &info = packageInfos[packageName];
+
+	if (packageStatus == PackageStatus::Outdated)
+	{
+		const auto &latestVersion = info.version;
+		const auto currentVersion = getVersion(package);
+
+		return QStringLiteral(
+			"There is a new version available: %1, current is: %2.\n"
+			"Please update when it's possible to do so."
+		).arg(latestVersion.toString(), currentVersion.toString());
+	}
+
+
+	if (packageStatus == PackageStatus::Unmaintained)
+	{
+		const auto days = info.updated.daysTo(QDateTime::currentDateTimeUtc());
+
+		return QStringLiteral(
+			"Package hasn't been updated in about %1 years.\n"
+			"Make sure it's still actively maintained,\n"
+			"and if not, try to find a replacement package."
+		).arg(days / 365);
+	}
+
+
+	return QStringLiteral("I don't know this package, sorry! :(");
 }

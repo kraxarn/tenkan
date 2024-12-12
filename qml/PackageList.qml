@@ -68,6 +68,11 @@ ListView {
 			ToolButton {
 				icon.source: `qrc:/res/icon/${packageModel.getStatusIcon(model.status)}.svg`
 				enabled: model.status > 1
+				onClicked: {
+					packageStatusDialog.packageName = model.packageName
+					packageStatusDialog.packageInfo = packageModel.getPackageStatusInfo(model.packageName, model.status)
+					packageStatusDialog.open()
+				}
 
 				ToolTip.visible: down
 				ToolTip.text: packageModel.getStatusText(model.status)

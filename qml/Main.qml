@@ -34,6 +34,15 @@ ApplicationWindow {
 		y: Math.round(root.height / 6)
 	}
 
+	PackageStatusDialog {
+		id: packageStatusDialog
+		modal: true
+		focus: true
+		width: 400
+		x: Math.round((root.width - width) / 2)
+		y: Math.round(root.height / 6)
+	}
+
 	ColumnLayout {
 		anchors {
 			fill: parent

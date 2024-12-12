@@ -8,6 +8,7 @@
 #include "api/devopsapi.hpp"
 #include "api/npmapi.hpp"
 #include "api/nugetapi.hpp"
+#include "data/packageinfo.hpp"
 
 class PackageTableModel : public QAbstractListModel
 {
@@ -37,6 +38,8 @@ public:
 	Q_INVOKABLE static QString getStatusText(PackageStatus packageStatus);
 
 	Q_INVOKABLE void updateStatus(const QString &packageName);
+
+	Q_INVOKABLE QString getPackageStatusInfo(const QString &packageName, PackageStatus packageStatus);
 
 	[[nodiscard]]
 	auto getTeams() const -> QList<QVariant>;
@@ -72,6 +75,8 @@ private:
 	qsizetype repositoryFileCount = -1;
 
 	QList<Team> teams;
+
+	QHash<QString, PackageInfo> packageInfos;
 
 	static auto getPackageType(const QString &langauge) -> PackageType;
 

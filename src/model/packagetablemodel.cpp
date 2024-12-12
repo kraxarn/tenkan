@@ -452,29 +452,29 @@ void PackageTableModel::updatePackageStatus(const NpmPackageInfo &info)
 	updatePackageStatus(info.name, PackageStatus::UpToDate);
 }
 
-void PackageTableModel::updatePackageStatus(const NuGetPackageInfo &info)
+void PackageTableModel::updatePackageStatus(const QString &packageName, const NuGetPackageInfo &info)
 {
 	if (info.title.contains(QStringLiteral("deprecated"), Qt::CaseInsensitive))
 	{
-		updatePackageStatus(info.id, PackageStatus::Deprecated);
+		updatePackageStatus(packageName, PackageStatus::Deprecated);
 		return;
 	}
 
-	const auto &items = packages[info.id];
+	const auto &items = packages[packageName];
 
-	if (getVersion(items) != parseVersionNumber(info.version))
+	if (getVersion(items) != parseVersionNumber(info.upper))
 	{
-		updatePackageStatus(info.id, PackageStatus::Outdated);
+		updatePackageStatus(packageName, PackageStatus::Outdated);
 		return;
 	}
 
-	if (info.published.daysTo(QDateTime::currentDateTimeUtc()) >= maxPackageAge)
+	if (info.commitTimeStamp.daysTo(QDateTime::currentDateTimeUtc()) >= maxPackageAge)
 	{
-		updatePackageStatus(info.id, PackageStatus::Unmaintained);
+		updatePackageStatus(packageName, PackageStatus::Unmaintained);
 		return;
 	}
 
-	updatePackageStatus(info.id, PackageStatus::UpToDate);
+	updatePackageStatus(packageName, PackageStatus::UpToDate);
 }
 
 void PackageTableModel::updateStatus(const QString &packageName)
@@ -503,13 +503,7 @@ void PackageTableModel::updateStatus(const QString &packageName)
 		case PackageType::DotNet:
 			nuGetApi.info(package.name, [this, packageName](const NuGetPackageInfo &info)
 			{
-				if (info.id.isEmpty())
-				{
-					qWarning() << "Failed to fetch info for package:" << packageName;
-					return;
-				}
-
-				updatePackageStatus(info);
+				updatePackageStatus(packageName, info);
 			});
 			break;
 

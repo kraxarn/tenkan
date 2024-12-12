@@ -4,9 +4,8 @@
 
 using NuGetPackageInfo = struct nuget_package_info_t
 {
-	QString id;
-	QString version;
-	QDateTime published;
+	QString upper;
+	QDateTime commitTimeStamp;
 	QString title;
 	QString licenseExpression;
 };

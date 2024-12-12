@@ -31,18 +31,26 @@ void NuGetApi::info(const QString &packageName, const std::function<void(NuGetPa
 	{
 		const auto json = QJsonDocument::fromJson(response);
 
-		const auto item = json[QStringLiteral("items")].toArray().last();
-		const auto itemItem = item[QStringLiteral("items")].toArray().last();
-		const auto catalogEntry = itemItem[QStringLiteral("catalogEntry")].toObject();
+		const auto item = json[QStringLiteral("items")].toArray().last().toObject();
+		const auto commitTimeStamp = item[QStringLiteral("commitTimeStamp")].toString();
 
-		const auto published = catalogEntry[QStringLiteral("published")].toString();
+		QString title;
+		QString licenseExpression;
+
+		if (item.contains(QStringLiteral("items")))
+		{
+			const auto itemItem = item[QStringLiteral("items")].toArray().last();
+			const auto catalogEntry = itemItem[QStringLiteral("catalogEntry")].toObject();
+
+			title = catalogEntry[QStringLiteral("title")].toString();
+			licenseExpression = catalogEntry[QStringLiteral("licenseExpression")].toString();
+		}
 
 		callback({
-			.id = catalogEntry[QStringLiteral("id")].toString(),
-			.version = catalogEntry[QStringLiteral("version")].toString(),
-			.published = QDateTime::fromString(published, Qt::ISODate),
-			.title = catalogEntry[QStringLiteral("title")].toString(),
-			.licenseExpression = catalogEntry[QStringLiteral("licenseExpression")].toString(),
+			.upper = item[QStringLiteral("upper")].toString(),
+			.commitTimeStamp = QDateTime::fromString(commitTimeStamp, Qt::ISODate),
+			.title = title,
+			.licenseExpression = licenseExpression,
 		});
 	});
 }

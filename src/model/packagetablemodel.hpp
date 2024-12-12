@@ -87,7 +87,7 @@ private:
 
 	void updatePackageStatus(const NpmPackageInfo &info);
 
-	void updatePackageStatus(const NuGetPackageInfo &info);
+	void updatePackageStatus(const QString &packageName, const NuGetPackageInfo &info);
 
 	static auto removePrefix(const QString &str) -> QStringView;
 

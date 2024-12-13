@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QString>
+#include <QJsonObject>
 
 PackageTableModel::PackageTableModel(QObject *parent)
 	: QAbstractListModel(parent),
@@ -10,7 +11,8 @@ PackageTableModel::PackageTableModel(QObject *parent)
 	aikidoApi(config, this),
 	devOpsApi(config, this),
 	npmApi(this),
-	nuGetApi(this)
+	nuGetApi(this),
+	cosmosDbApi(config, this)
 {
 	proxyModel->setSourceModel(this);
 }
@@ -206,6 +208,11 @@ void PackageTableModel::loadItems()
 	{
 		this->teams = teams;
 		emit teamsChanged();
+	});
+
+	cosmosDbApi.queryDocuments([this](const QList<QJsonObject> &documents)
+	{
+		updateVerifications(documents);
 	});
 }
 
@@ -598,4 +605,20 @@ auto PackageTableModel::getPackageStatusInfo(const QString &packageName, const P
 
 
 	return QStringLiteral("I don't know this package, sorry! :(");
+}
+
+void PackageTableModel::updateVerifications(const QList<QJsonObject> &documents)
+{
+	for (const auto &document : documents)
+	{
+		const auto packageName = document[QStringLiteral("id")].toString();
+		const auto teamId = document[QStringLiteral("value")].toString();
+		const auto timestamp = document[QStringLiteral("timestamp")].toString();
+
+		verifications.insert(packageName, {
+			.packageName = packageName,
+			.teamId = teamId,
+			.timestamp = QDateTime::fromString(timestamp, Qt::ISODate),
+		});
+	}
 }

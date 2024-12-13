@@ -8,7 +8,9 @@
 #include "api/devopsapi.hpp"
 #include "api/npmapi.hpp"
 #include "api/nugetapi.hpp"
+#include "api/cosmosdbapi.hpp"
 #include "data/packageinfo.hpp"
+#include "data/verification.hpp"
 
 class PackageTableModel : public QAbstractListModel
 {
@@ -69,6 +71,7 @@ private:
 	DevOpsApi devOpsApi;
 	NpmApi npmApi;
 	NuGetApi nuGetApi;
+	CosmosDbApi cosmosDbApi;
 
 	QHash<QString, QList<Package>> packages;
 	QStringList packageOrder;
@@ -77,6 +80,7 @@ private:
 	QList<Team> teams;
 
 	QHash<QString, PackageInfo> packageInfos;
+	QHash<QString, Verification> verifications;
 
 	static auto getPackageType(const QString &langauge) -> PackageType;
 
@@ -93,6 +97,8 @@ private:
 	void updatePackageStatus(const NpmPackageInfo &info);
 
 	void updatePackageStatus(const QString &packageName, const NuGetPackageInfo &info);
+
+	void updateVerifications(const QList<QJsonObject> &documents);
 
 	static auto removePrefix(const QString &str) -> QStringView;
 

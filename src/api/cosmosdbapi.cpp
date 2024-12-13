@@ -61,9 +61,8 @@ void CosmosDbApi::createDocument(const QString &id, const QString &value, const 
 	const auto request = prepareRequest(QStringLiteral("/%1/docs").arg(resourceLink));
 	auto *reply = http()->post(request, body);
 
-	await(reply, [](const QByteArray &response)
+	await(reply, []([[maybe_unused]] const QByteArray &response)
 	{
-		qInfo() << QString::fromUtf8(response);
 	});
 }
 

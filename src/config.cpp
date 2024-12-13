@@ -36,6 +36,19 @@ auto Config::devops() const -> DevOpsConfig
 	};
 }
 
+auto Config::cosmosDb() const -> CosmosDbConfig
+{
+	const auto object = json[QStringLiteral("cosmos_db")].toObject();
+
+	return {
+		.key = object[QStringLiteral("key")].toString(),
+		.name = object[QStringLiteral("name")].toString(),
+		.database = object[QStringLiteral("database")].toString(),
+		.container = object[QStringLiteral("container")].toString(),
+	};
+}
+
+
 auto Config::repositories() const -> QList<RepositoryConfig>
 {
 	const auto object = json[QStringLiteral("devops")].toObject();
@@ -44,14 +57,14 @@ auto Config::repositories() const -> QList<RepositoryConfig>
 	QList<RepositoryConfig> repositories;
 	repositories.reserve(array.size());
 
-	for (const auto &value: array)
+	for (const auto &value : array)
 	{
 		const auto fileArray = value[QStringLiteral("files")].toArray();
 
 		QList<QString> files;
 		files.reserve(fileArray.size());
 
-		for (const auto &fileValue: fileArray)
+		for (const auto &fileValue : fileArray)
 		{
 			files.append(fileValue.toString());
 		}

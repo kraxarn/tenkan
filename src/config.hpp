@@ -5,6 +5,7 @@
 #include "config/repository.hpp"
 #include "config/aikido.hpp"
 #include "config/devops.hpp"
+#include "config/cosmosdb.hpp"
 
 class Config final
 {
@@ -16,6 +17,9 @@ public:
 
 	[[nodiscard]]
 	auto devops() const -> DevOpsConfig;
+
+	[[nodiscard]]
+	auto cosmosDb() const -> CosmosDbConfig;
 
 private:
 	const QJsonDocument json;

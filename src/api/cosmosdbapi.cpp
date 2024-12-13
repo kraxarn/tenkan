@@ -1,5 +1,6 @@
 #include "api/cosmosdbapi.hpp"
 
+#include <QJsonArray>
 #include <QMessageAuthenticationCode>
 #include <QJsonObject>
 
@@ -66,8 +67,39 @@ void CosmosDbApi::createDocument(const QString &id, const QString &value, const 
 	});
 }
 
-void CosmosDbApi::getDocument(const QString &id, std::function<void(QString)> &callback)
+void CosmosDbApi::queryDocuments(const std::function<void(QList<QJsonObject>)> &callback)
 {
+	const auto resourceLink = QStringLiteral("dbs/%1/colls/%2")
+		.arg(config.database, config.container);
+
+	const auto date = dateStr();
+
+	const auto auth = createAuthSignature(QStringLiteral("POST"), QStringLiteral("docs"), resourceLink, date);
+	requestHeaders.append("x-ms-date", date);
+	requestHeaders.append("authorization", auth);
+	requestHeaders.append("x-ms-documentdb-isquery", "True");
+	requestHeaders.append("x-ms-documentdb-partitionkey", QStringLiteral("[\"\"]"));
+
+	const auto body = QStringLiteral("select * from c").toUtf8();
+
+	const auto request = prepareRequest(QStringLiteral("/%1/docs").arg(resourceLink));
+	auto *reply = http()->post(request, body);
+
+	await(reply, [callback](const QByteArray &response)
+	{
+		const auto json = QJsonDocument::fromJson(response);
+		const auto documents = json[QStringLiteral("Documents")].toArray();
+
+		QList<QJsonObject> items;
+		items.reserve(documents.size());
+
+		for (const auto &document : documents)
+		{
+			items.append(document.toObject());
+		}
+
+		callback(items);
+	});
 }
 
 

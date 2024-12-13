@@ -14,7 +14,7 @@ public:
 
 	void createDocument(const QString &id, const QString &value, const QDateTime &timestamp);
 
-	void getDocument(const QString &id, std::function<void(QString)> &callback);
+	void queryDocuments(const std::function<void(QList<QJsonObject>)> &callback);
 
 protected:
 	[[nodiscard]]

@@ -24,22 +24,6 @@ auto CosmosDbApi::headers() const -> QHttpHeaders
 	return headers;
 }
 
-void CosmosDbApi::databases()
-{
-	const auto date = dateStr();
-	const auto auth = createAuthSignature(QStringLiteral("GET"), QStringLiteral("dbs"), {}, date);
-	requestHeaders.append("x-ms-date", date);
-	requestHeaders.append("authorization", auth);
-
-	const auto request = prepareRequest(QStringLiteral("/dbs"));
-	auto *reply = http()->get(request);
-
-	await(reply, [](const QByteArray &response)
-	{
-		qInfo() << QString::fromUtf8(response);
-	});
-}
-
 void CosmosDbApi::createDocument(const QString &id, const QString &value, const QDateTime &timestamp)
 {
 	const auto resourceLink = QStringLiteral("dbs/%1/colls/%2")

@@ -39,7 +39,7 @@ void CosmosDbApi::databases()
 	});
 }
 
-void CosmosDbApi::createDocument(const QString &id, const QString &value)
+void CosmosDbApi::createDocument(const QString &id, const QString &value, const QDateTime &timestamp)
 {
 	const auto resourceLink = QStringLiteral("dbs/%1/colls/%2")
 		.arg(config.database, config.container);
@@ -55,6 +55,7 @@ void CosmosDbApi::createDocument(const QString &id, const QString &value)
 	QJsonObject json;
 	json[QStringLiteral("id")] = id;
 	json[QStringLiteral("value")] = value;
+	json[QStringLiteral("timestamp")] = timestamp.toString(Qt::ISODate);
 	const auto body = QJsonDocument(json).toJson(QJsonDocument::Compact);
 
 	const auto request = prepareRequest(QStringLiteral("/%1/docs").arg(resourceLink));

@@ -111,8 +111,6 @@ auto CosmosDbApi::dateStr() -> QString
 auto CosmosDbApi::createAuthSignature(const QString &method, const QString &resourceType,
 	const QString &resourceLink, const QString &date) const -> QString
 {
-	const auto keyType = QStringLiteral("master");
-	const auto tokenVersion = QStringLiteral("1.0");
 	const auto key = QByteArray::fromBase64(config.key.toUtf8());
 
 	const auto payload = QStringLiteral("%1\n%2\n%3\n%4\n\n")
@@ -120,9 +118,9 @@ auto CosmosDbApi::createAuthSignature(const QString &method, const QString &reso
 
 	QMessageAuthenticationCode code(QCryptographicHash::Sha256, key);
 	code.addData(payload.toUtf8());
-	const auto hashPayload = code.result();
+	const auto payloadHash = code.result();
 
-	const auto signature = QString::fromUtf8(hashPayload.toBase64());
-	return QString::fromUtf8(QUrl::toPercentEncoding(QStringLiteral("type=%1&ver=%2&sig=%3")
-		.arg(keyType, tokenVersion, signature)));
+	const auto signature = QString::fromUtf8(payloadHash.toBase64());
+	const auto auth = QStringLiteral("type=master&ver=1.0&sig=%1").arg(signature);
+	return QString::fromUtf8(QUrl::toPercentEncoding(auth));
 }

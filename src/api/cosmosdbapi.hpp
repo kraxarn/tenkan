@@ -12,6 +12,10 @@ public:
 
 	void databases();
 
+	void createDocument(const QString &id, const QString &value);
+
+	void getDocument(const QString &id, std::function<void(QString)> &callback);
+
 protected:
 	[[nodiscard]]
 	auto baseUrl() const -> QString override;

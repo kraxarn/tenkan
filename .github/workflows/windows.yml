@@ -35,5 +35,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: tenkan-linux
+          name: tenkan-win64
           path: ${{runner.workspace}}/tenkan/${{env.BUILD_TYPE}}

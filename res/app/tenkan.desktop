@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Tenkan dependency manager
+GenericName=Dependency manager
+Comment=Manage NPM and NuGet dependencies
+Icon=tenkan
+Exec=tenkan
+Terminal=false

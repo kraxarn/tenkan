@@ -28,6 +28,11 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PRIVATE QT_QML_DEBUG)
 endif ()
 
+if (UNIX)
+    install(FILES res/app/tenkan.desktop DESTINATION share/applications)
+    install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
+endif ()
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
         WIN32_EXECUTABLE TRUE
 )

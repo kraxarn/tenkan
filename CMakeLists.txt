@@ -30,6 +30,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif ()
 
 if (UNIX)
+    install(FILES res/icon/package-variant.svg DESTINATION share/icons/hicolor/scalable/apps)
     install(FILES res/app/tenkan.desktop DESTINATION share/applications)
     install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 endif ()

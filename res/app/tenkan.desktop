@@ -6,3 +6,4 @@ Comment=Manage NPM and NuGet dependencies
 Icon=package-variant
 Exec=tenkan
 Terminal=false
+Categories=Development;

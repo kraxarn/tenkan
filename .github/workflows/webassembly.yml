@@ -28,6 +28,8 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           cache: true
+          host: 'all_os'
+          target: 'wasm'
           version: ${{env.QT_VERSION}}
           arch: ${{env.QT_ARCH}}
           # https://github.com/miurahr/aqtinstall/pull/846

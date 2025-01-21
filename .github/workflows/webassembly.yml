@@ -6,7 +6,7 @@ env:
   BUILD_TYPE: MinSizeRel
   # https://github.com/miurahr/aqtinstall/pull/846
   QT_VERSION: "6.6.3"
-  QT_HOST_ARCH: "linux_gcc_64"
+  QT_HOST_ARCH: "gcc_64"
   QT_ARCH: "wasm_multithread"
   # https://doc.qt.io/qt-6/wasm.html#installing-emscripten
   EM_VERSION: "3.1.37"

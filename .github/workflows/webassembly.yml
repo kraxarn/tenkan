@@ -46,14 +46,16 @@ jobs:
         env:
           QT_HOST_PATH: ${{runner.workspace}}/Qt/${{env.QT_VERSION}}/gcc_64
         run: |
+          mkdir dist && cd dist
           chmod +x ${{runner.workspace}}/Qt/$QT_VERSION/$QT_ARCH/bin/qt-cmake
-          ${{runner.workspace}}/Qt/$QT_VERSION/$QT_ARCH/bin/qt-cmake . -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+          ${{runner.workspace}}/Qt/$QT_VERSION/$QT_ARCH/bin/qt-cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE
 
       - name: Build
+        working-directory: ${{runner.workspace}}/tenkan/dist
         run: cmake --build . --config $BUILD_TYPE
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: tenkan-wasm
-          path: ${{runner.workspace}}/tenkan
+          path: ${{runner.workspace}}/tenkan/dist

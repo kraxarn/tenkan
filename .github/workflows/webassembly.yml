@@ -25,7 +25,8 @@ jobs:
           arch: ${{env.QT_HOST_ARCH}}
 
       - name: Install Qt (WASM)
-        uses: jurplel/install-qt-action@v4
+        # https://github.com/jurplel/install-qt-action/issues/258
+        uses: timangus/install-qt-action@deployed
         with:
           cache: true
           host: 'all_os'

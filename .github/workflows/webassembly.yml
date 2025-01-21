@@ -1,0 +1,53 @@
+name: WebAssembly
+
+on: [ push, pull_request ]
+
+env:
+  BUILD_TYPE: Release
+  # https://github.com/miurahr/aqtinstall/pull/846
+  QT_VERSION: "6.6.3"
+  QT_HOST_ARCH: "linux_gcc_64"
+  QT_ARCH: "wasm_multithread"
+  # https://doc.qt.io/qt-6/wasm.html#installing-emscripten
+  EM_VERSION: "3.1.37"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt (Linux)
+        uses: jurplel/install-qt-action@v4
+        with:
+          cache: true
+          version: ${{env.QT_VERSION}}
+          arch: ${{env.QT_HOST_ARCH}}
+
+      - name: Install Qt (WASM)
+        uses: jurplel/install-qt-action@v4
+        with:
+          cache: true
+          version: ${{env.QT_VERSION}}
+          arch: ${{env.QT_ARCH}}
+
+      - name: Setup emsdk
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: ${{env.EM_VERSION}}
+          actions-cache-folder: 'emsdk-${{env.EM_VERSION}}'
+
+      - name: Configure CMake
+        env:
+          QT_HOST_PATH: ${{runner.workspace}}/Qt/${{env.QT_VERSION}}/${{env.QT_HOST_ARCH}}
+        run: ${{runner.workspace}}/Qt/$QT_VERSION/$QT_ARCH/bin/qt-cmake . -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+
+      - name: Build
+        run: cmake --build . --config $BUILD_TYPE
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tenkan-wasm
+          path: ${{runner.workspace}}/tenkan

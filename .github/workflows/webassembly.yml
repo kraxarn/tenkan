@@ -3,7 +3,7 @@ name: WebAssembly
 on: [ push, pull_request ]
 
 env:
-  BUILD_TYPE: Release
+  BUILD_TYPE: MinSizeRel
   # https://github.com/miurahr/aqtinstall/pull/846
   QT_VERSION: "6.6.3"
   QT_HOST_ARCH: "linux_gcc_64"

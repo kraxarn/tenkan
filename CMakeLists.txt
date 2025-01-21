@@ -35,11 +35,6 @@ if (UNIX)
     install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 endif ()
 
-if (EMSCRIPTEN)
-    # C++20 modules aren't supported on wasm, but we don't use them anyway
-    set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
-endif ()
-
 set_target_properties(${PROJECT_NAME} PROPERTIES
         WIN32_EXECUTABLE TRUE
 )

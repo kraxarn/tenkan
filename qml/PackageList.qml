@@ -21,7 +21,11 @@ ListView {
 
 	delegate: ItemDelegate {
 		id: row
-		width: parent ? parent.width : 0
+		width: parent ? Math.min(1280, parent.width) : 0
+
+		anchors {
+			horizontalCenter: parent ? parent.horizontalCenter : undefined
+		}
 
 		Component.onCompleted: {
 			packageModel.updateStatus(model.packageName)

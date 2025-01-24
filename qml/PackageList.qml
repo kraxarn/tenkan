@@ -125,6 +125,13 @@ ListView {
 							ToolTip.text: modelData.path
 						}
 					}
+
+					MenuItem {
+						text: "Mark as verified"
+						icon.source: "qrc:/res/icon/lock-check.svg"
+						enabled: model.assignedTeam !== "(no team)"
+						onTriggered: packageModel.markVerified(model.packageName)
+					}
 				}
 			}
 		}

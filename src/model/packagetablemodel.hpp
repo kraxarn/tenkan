@@ -45,6 +45,8 @@ public:
 
 	Q_INVOKABLE void assignTeam(const QString &packageName, const QString &teamId);
 
+	Q_INVOKABLE void markVerified(const QString &packageName);
+
 	[[nodiscard]]
 	auto getTeams() const -> QList<QVariant>;
 

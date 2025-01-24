@@ -558,6 +558,7 @@ void PackageTableModel::updateAssignedTeam(const QString &packageName)
 
 	emit dataChanged(index, index, {
 		static_cast<int>(ItemRole::AssignedTeam),
+		static_cast<int>(ItemRole::LastChecked),
 	});
 }
 
@@ -661,6 +662,18 @@ void PackageTableModel::assignTeam(const QString &packageName, const QString &te
 	});
 }
 
+void PackageTableModel::markVerified(const QString &packageName)
+{
+	if (!verifications.contains(packageName))
+	{
+		qWarning() << "Failed to mark package as verified";
+		return;
+	}
+
+	const auto &teamId = verifications[packageName].teamId;
+	assignTeam(packageName, teamId);
+}
+
 auto PackageTableModel::getAssignedTeam(const QString &packageName) const -> QString
 {
 	if (teams.empty())
@@ -686,7 +699,7 @@ auto PackageTableModel::getLastChecked(const QString &packageName) const -> QStr
 {
 	if (!verifications.contains(packageName))
 	{
-			return QStringLiteral("(never)");
+		return QStringLiteral("(never)");
 	}
 
 	const auto &timestamp = verifications[packageName].timestamp;

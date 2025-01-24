@@ -551,6 +551,16 @@ void PackageTableModel::updateStatus(const QString &packageName)
 	}
 }
 
+void PackageTableModel::updateAssignedTeam(const QString &packageName)
+{
+	const auto row = packageOrder.indexOf(packageName);
+	const auto index = createIndex(static_cast<int>(row), 0);
+
+	emit dataChanged(index, index, {
+		static_cast<int>(ItemRole::AssignedTeam),
+	});
+}
+
 auto PackageTableModel::getPackageStatusInfo(const QString &packageName, const PackageStatus packageStatus) -> QString
 {
 	if (packageStatus == PackageStatus::UpToDate)
@@ -637,7 +647,18 @@ void PackageTableModel::assignTeam(const QString &packageName, const QString &te
 		return;
 	}
 
-	cosmosDbApi.createDocument(packageName, teamId, QDateTime::currentDateTimeUtc());
+	const auto timestamp = QDateTime::currentDateTimeUtc();
+
+	cosmosDbApi.createDocument(packageName, teamId, timestamp, [this, packageName, teamId, timestamp]
+	{
+		verifications.insert(packageName, {
+			.packageName = packageName,
+			.teamId = teamId,
+			.timestamp = timestamp,
+		});
+
+		updateAssignedTeam(packageName);
+	});
 }
 
 auto PackageTableModel::getAssignedTeam(const QString &packageName) const -> QString

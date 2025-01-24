@@ -99,6 +99,8 @@ private:
 
 	void updatePackageStatus(const QString &packageName, const NuGetPackageInfo &info);
 
+	void updateAssignedTeam(const QString &packageName);
+
 	void updateVerifications(const QList<QJsonObject> &documents);
 
 	static auto removePrefix(const QString &str) -> QStringView;

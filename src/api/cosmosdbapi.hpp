@@ -10,7 +10,8 @@ class CosmosDbApi final : public Api
 public:
 	CosmosDbApi(const Config &config, QObject *parent);
 
-	void createDocument(const QString &id, const QString &value, const QDateTime &timestamp);
+	void createDocument(const QString &id, const QString &value, const QDateTime &timestamp,
+		const std::function<void()> &callback);
 
 	void queryDocuments(const std::function<void(QList<QJsonObject>)> &callback);
 

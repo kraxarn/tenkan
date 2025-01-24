@@ -24,7 +24,8 @@ auto CosmosDbApi::headers() const -> QHttpHeaders
 	return headers;
 }
 
-void CosmosDbApi::createDocument(const QString &id, const QString &value, const QDateTime &timestamp)
+void CosmosDbApi::createDocument(const QString &id, const QString &value, const QDateTime &timestamp,
+	const std::function<void()> &callback)
 {
 	const auto resourceLink = QStringLiteral("dbs/%1/colls/%2")
 		.arg(config.database, config.container);
@@ -48,8 +49,9 @@ void CosmosDbApi::createDocument(const QString &id, const QString &value, const 
 
 	auto *reply = http()->post(request, body);
 
-	await(reply, []([[maybe_unused]] const QByteArray &response)
+	await(reply, [callback]([[maybe_unused]] const QByteArray &response)
 	{
+		callback();
 	});
 }
 

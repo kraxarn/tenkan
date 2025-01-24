@@ -61,6 +61,7 @@ ListView {
 					verticalAlignment: Text.AlignVCenter
 					horizontalAlignment: Text.AlignRight
 					padding: parent.padding
+					enabled: model.assignedTeam !== "(no team)"
 					anchors.fill: parent
 				}
 

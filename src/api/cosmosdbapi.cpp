@@ -44,6 +44,8 @@ void CosmosDbApi::createDocument(const QString &id, const QString &value, const 
 	const auto body = QJsonDocument(json).toJson(QJsonDocument::Compact);
 
 	const auto request = prepareRequest(QStringLiteral("/%1/docs").arg(resourceLink));
+	requestHeaders.clear();
+
 	auto *reply = http()->post(request, body);
 
 	await(reply, []([[maybe_unused]] const QByteArray &response)
@@ -71,6 +73,8 @@ void CosmosDbApi::queryDocuments(const std::function<void(QList<QJsonObject>)> &
 	const auto body = QJsonDocument(json).toJson(QJsonDocument::Compact);
 
 	const auto request = prepareRequest(QStringLiteral("/%1/docs").arg(resourceLink));
+	requestHeaders.clear();
+
 	auto *reply = http()->post(request, body);
 
 	await(reply, [callback](const QByteArray &response)

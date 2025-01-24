@@ -94,6 +94,7 @@ ListView {
 
 			Label {
 				text: model.lastChecked || "<empty>"
+				enabled: model.lastChecked !== "(never)"
 			}
 
 			ToolButton {

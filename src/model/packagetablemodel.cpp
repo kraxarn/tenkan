@@ -39,7 +39,7 @@ auto PackageTableModel::data(const QModelIndex &index, const int role) const -> 
 			return getPackageSourceIcon(items.at(0).type);
 
 		case ItemRole::AssignedTeam:
-			return QStringLiteral("(no team)");
+			return getAssignedTeam(packageName);
 
 		case ItemRole::Status:
 			return static_cast<int>(items.at(0).status);
@@ -206,7 +206,13 @@ void PackageTableModel::loadItems()
 
 	devOpsApi.teams([this](const QList<Team> &teams)
 	{
-		this->teams = teams;
+		this->teams.clear();
+
+		for (const auto &team : teams)
+		{
+			this->teams.insert(team.id, team);
+		}
+
 		emit teamsChanged();
 	});
 
@@ -632,4 +638,25 @@ void PackageTableModel::assignTeam(const QString &packageName, const QString &te
 	}
 
 	cosmosDbApi.createDocument(packageName, teamId, QDateTime::currentDateTimeUtc());
+}
+
+auto PackageTableModel::getAssignedTeam(const QString &packageName) const -> QString
+{
+	if (teams.empty())
+	{
+		return QStringLiteral("...");
+	}
+
+	if (!verifications.contains(packageName))
+	{
+		return QStringLiteral("(no team)");
+	}
+
+	const auto &teamId = verifications[packageName].teamId;
+	if (!teams.contains(teamId))
+	{
+		return QStringLiteral("(unknown team)");
+	}
+
+	return teams[teamId].name;
 }

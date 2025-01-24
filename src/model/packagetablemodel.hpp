@@ -79,10 +79,9 @@ private:
 	QStringList packageOrder;
 	qsizetype repositoryFileCount = -1;
 
-	QList<Team> teams;
-
 	QHash<QString, PackageInfo> packageInfos;
 	QHash<QString, Verification> verifications;
+	QHash<QString, Team> teams;
 
 	static auto getPackageType(const QString &langauge) -> PackageType;
 
@@ -113,4 +112,7 @@ private:
 	static auto getPackageUrl(const Package &package) -> QUrl;
 
 	static auto getFilePaths(const QList<Package> &packages) -> QList<QVariant>;
+
+	[[nodiscard]]
+	auto getAssignedTeam(const QString &packageName) const -> QString;
 };

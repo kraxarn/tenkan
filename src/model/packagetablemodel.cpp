@@ -690,18 +690,28 @@ auto PackageTableModel::openPullRequest(const QString &packageName) -> void
 	const auto &package = packages[packageName].at(0);
 	const auto &repositoryId = package.repositoryId;
 
-	devOpsApi.pullRequests(repositoryId, package.name, [this, repositoryId](const QList<int> &pullRequests)
+	devOpsApi.pullRequests(repositoryId, package.name, [this, repositoryId](const QList<PullRequest> &pullRequests)
 	{
 		if (pullRequests.empty())
 		{
 			return;
 		}
 
+		auto *latest = &pullRequests.at(0);
+
+		for (const auto &pullRequest : pullRequests)
+		{
+			if (pullRequest.creationDate > latest->creationDate)
+			{
+				latest = &pullRequest;
+			}
+		}
+
 		const auto config = this->config.devops();
 
 		const auto url = QStringLiteral("https://dev.azure.com/%1/%2/_git/%3/pullrequest/%4")
 			.arg(config.organization, config.project, repositoryId)
-			.arg(pullRequests.at(0));
+			.arg(latest->pullRequestId);
 
 		QDesktopServices::openUrl({url});
 	});

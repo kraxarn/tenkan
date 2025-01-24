@@ -5,6 +5,7 @@
 #include "data/nodejs/package.hpp"
 #include "api/api.hpp"
 #include "data/team.hpp"
+#include "data/pullrequest.hpp"
 
 class DevOpsApi : public Api
 {
@@ -30,7 +31,8 @@ public:
 
 	void teams(const std::function<void(QList<Team>)> &callback) const;
 
-	void pullRequests(const QString &repositoryId, const QString &packageName, const std::function<void(QList<int>)> &callback) const;
+	void pullRequests(const QString &repositoryId, const QString &packageName,
+		const std::function<void(QList<PullRequest>)> &callback) const;
 
 protected:
 	[[nodiscard]]

@@ -45,7 +45,7 @@ auto PackageTableModel::data(const QModelIndex &index, const int role) const -> 
 			return static_cast<int>(items.at(0).status);
 
 		case ItemRole::LastChecked:
-			return QStringLiteral("(never)");
+			return getLastChecked(packageName);
 
 		case ItemRole::FilePaths:
 			return getFilePaths(items);
@@ -680,4 +680,15 @@ auto PackageTableModel::getAssignedTeam(const QString &packageName) const -> QSt
 	}
 
 	return teams[teamId].name;
+}
+
+auto PackageTableModel::getLastChecked(const QString &packageName) const -> QString
+{
+	if (!verifications.contains(packageName))
+	{
+			return QStringLiteral("(never)");
+	}
+
+	const auto &timestamp = verifications[packageName].timestamp;
+	return QLocale::system().toString(timestamp.date(), QLocale::ShortFormat);
 }

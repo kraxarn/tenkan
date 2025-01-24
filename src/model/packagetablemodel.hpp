@@ -117,4 +117,7 @@ private:
 
 	[[nodiscard]]
 	auto getAssignedTeam(const QString &packageName) const -> QString;
+
+	[[nodiscard]]
+	auto getLastChecked(const QString &packageName) const -> QString;
 };

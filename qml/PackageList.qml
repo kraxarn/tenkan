@@ -92,9 +92,17 @@ ListView {
 				ToolTip.text: packageModel.getStatusText(model.status)
 			}
 
-			Label {
-				text: model.lastChecked || "<empty>"
-				enabled: model.lastChecked !== "(never)"
+			Item {
+				implicitWidth: 70
+
+				Label {
+					text: model.lastChecked || "<empty>"
+					verticalAlignment: Text.AlignVCenter
+					horizontalAlignment: Text.AlignRight
+					padding: parent.padding
+					enabled: model.lastChecked !== "(never)"
+					anchors.fill: parent
+				}
 			}
 
 			ToolButton {

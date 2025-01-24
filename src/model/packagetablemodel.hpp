@@ -43,6 +43,8 @@ public:
 
 	Q_INVOKABLE QString getPackageStatusInfo(const QString &packageName, PackageStatus packageStatus);
 
+	Q_INVOKABLE void assignTeam(const QString &packageName, const QString &teamId);
+
 	[[nodiscard]]
 	auto getTeams() const -> QList<QVariant>;
 

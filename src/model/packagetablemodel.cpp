@@ -622,3 +622,14 @@ void PackageTableModel::updateVerifications(const QList<QJsonObject> &documents)
 		});
 	}
 }
+
+void PackageTableModel::assignTeam(const QString &packageName, const QString &teamId)
+{
+	if (packageName.isEmpty() || teamId.isEmpty())
+	{
+		qWarning() << "Failed to assign package to team";
+		return;
+	}
+
+	cosmosDbApi.createDocument(packageName, teamId, QDateTime::currentDateTimeUtc());
+}

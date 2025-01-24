@@ -64,6 +64,7 @@ ListView {
 
 						MenuItem {
 							text: modelData.name
+							onTriggered: packageModel.assignTeam(row.model.packageName, modelData.id)
 						}
 					}
 				}

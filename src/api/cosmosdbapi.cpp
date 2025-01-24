@@ -62,9 +62,13 @@ void CosmosDbApi::queryDocuments(const std::function<void(QList<QJsonObject>)> &
 	requestHeaders.append("x-ms-date", date);
 	requestHeaders.append("authorization", auth);
 	requestHeaders.append("x-ms-documentdb-isquery", "True");
-	requestHeaders.append("x-ms-documentdb-partitionkey", QStringLiteral("[\"\"]"));
+	requestHeaders.append("x-ms-documentdb-query-enablecrosspartition", "True");
+	requestHeaders.append("Content-Type", "application/query+json");
 
-	const auto body = QStringLiteral("select * from c").toUtf8();
+	QJsonObject json;
+	json[QStringLiteral("query")] = QStringLiteral("select * from c");
+	json[QStringLiteral("parameters")] = QJsonArray();
+	const auto body = QJsonDocument(json).toJson(QJsonDocument::Compact);
 
 	const auto request = prepareRequest(QStringLiteral("/%1/docs").arg(resourceLink));
 	auto *reply = http()->post(request, body);

@@ -52,9 +52,17 @@ ListView {
 				onClicked: Qt.openUrlExternally(model.packageUrl)
 			}
 
-			ToolButton {
-				text: model.assignedTeam || "<empty>"
+			ItemDelegate {
+				implicitWidth: 200
 				onClicked: teamMenu.open()
+
+				Label {
+					text: model.assignedTeam || "<empty>"
+					verticalAlignment: Text.AlignVCenter
+					horizontalAlignment: Text.AlignRight
+					padding: parent.padding
+					anchors.fill: parent
+				}
 
 				Menu {
 					id: teamMenu

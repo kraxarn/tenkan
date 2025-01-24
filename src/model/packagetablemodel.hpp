@@ -47,6 +47,8 @@ public:
 
 	Q_INVOKABLE void markVerified(const QString &packageName);
 
+	Q_INVOKABLE void openPullRequest(const QString &packageName);
+
 	[[nodiscard]]
 	auto getTeams() const -> QList<QVariant>;
 
@@ -89,9 +91,11 @@ private:
 
 	static auto getPackageSourceIcon(PackageType type) -> QString;
 
-	void loadItems(const QString &filePath, const QList<DotNet::PackageReference> &dotNetPackages);
+	void loadItems(const QString &filePath, const QString &repositoryId,
+		const QList<DotNet::PackageReference> &dotNetPackages);
 
-	void loadItems(const QString &filePath, const QList<NodeJs::Package> &nodeJsPackages);
+	void loadItems(const QString &filePath, const QString &repositoryId,
+		const QList<NodeJs::Package> &nodeJsPackages);
 
 	void addPackage(const Package &package);
 

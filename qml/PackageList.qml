@@ -127,6 +127,15 @@ ListView {
 					}
 
 					MenuItem {
+						text: "Open pull request"
+						icon.source: "qrc:/res/icon/source-pull.svg"
+						enabled: model.status === 3 || model.status === 4
+						onTriggered: packageModel.openPullRequest(model.packageName)
+					}
+
+					MenuSeparator {}
+
+					MenuItem {
 						text: "Mark as verified"
 						icon.source: "qrc:/res/icon/lock-check.svg"
 						enabled: model.assignedTeam !== "(no team)"

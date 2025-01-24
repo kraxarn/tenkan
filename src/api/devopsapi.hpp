@@ -30,6 +30,8 @@ public:
 
 	void teams(const std::function<void(QList<Team>)> &callback) const;
 
+	void pullRequests(const QString &repositoryId, const QString &packageName, const std::function<void(QList<int>)> &callback) const;
+
 protected:
 	[[nodiscard]]
 	auto baseUrl() const -> QString override;

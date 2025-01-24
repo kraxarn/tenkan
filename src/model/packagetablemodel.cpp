@@ -4,6 +4,7 @@
 #include <QFileInfo>
 #include <QString>
 #include <QJsonObject>
+#include <QDesktopServices>
 
 PackageTableModel::PackageTableModel(QObject *parent)
 	: QAbstractListModel(parent),
@@ -108,7 +109,8 @@ void PackageTableModel::addPackage(const Package &package)
 }
 
 
-void PackageTableModel::loadItems(const QString &filePath, const QList<DotNet::PackageReference> &dotNetPackages)
+void PackageTableModel::loadItems(const QString &filePath, const QString &repositoryId,
+	const QList<DotNet::PackageReference> &dotNetPackages)
 {
 	beginInsertRows({},
 		static_cast<int>(packages.size()),
@@ -126,6 +128,7 @@ void PackageTableModel::loadItems(const QString &filePath, const QList<DotNet::P
 			.lastChecked = {},
 			.filePath = filePath,
 			.fileName = QFileInfo(filePath).fileName(),
+			.repositoryId = repositoryId,
 		});
 	}
 
@@ -137,7 +140,8 @@ void PackageTableModel::loadItems(const QString &filePath, const QList<DotNet::P
 	}
 }
 
-void PackageTableModel::loadItems(const QString &filePath, const QList<NodeJs::Package> &nodeJsPackages)
+void PackageTableModel::loadItems(const QString &filePath, const QString &repositoryId,
+	const QList<NodeJs::Package> &nodeJsPackages)
 {
 	beginInsertRows({},
 		static_cast<int>(packages.size()),
@@ -157,6 +161,7 @@ void PackageTableModel::loadItems(const QString &filePath, const QList<NodeJs::P
 			.lastChecked = {},
 			.filePath = filePath,
 			.fileName = QStringLiteral("%1/%2").arg(fileInfo.dir().dirName(), fileInfo.fileName()),
+			.repositoryId = repositoryId,
 		});
 	}
 
@@ -184,19 +189,20 @@ void PackageTableModel::loadItems()
 			if (path.endsWith(QStringLiteral(".csproj")))
 			{
 				devOpsApi.getPackageReferences(repositoryId, path,
-					[this, path](const QList<DotNet::PackageReference> &packages)
+					[this, path, repositoryId](const QList<DotNet::PackageReference> &packages)
 					{
-						loadItems(path, packages);
+						loadItems(path, repositoryId, packages);
 					});
 				continue;
 			}
 
 			if (path.endsWith(QStringLiteral("package.json")))
 			{
-				devOpsApi.packages(repositoryId, path, [this, path](const QList<NodeJs::Package> &packages)
-				{
-					loadItems(path, packages);
-				});
+				devOpsApi.packages(repositoryId, path,
+					[this, path, repositoryId](const QList<NodeJs::Package> &packages)
+					{
+						loadItems(path, repositoryId, packages);
+					});
 				continue;
 			}
 
@@ -673,6 +679,34 @@ void PackageTableModel::markVerified(const QString &packageName)
 	const auto &teamId = verifications[packageName].teamId;
 	assignTeam(packageName, teamId);
 }
+
+auto PackageTableModel::openPullRequest(const QString &packageName) -> void
+{
+	if (!packages.contains(packageName))
+	{
+		return;
+	}
+
+	const auto &package = packages[packageName].at(0);
+	const auto &repositoryId = package.repositoryId;
+
+	devOpsApi.pullRequests(repositoryId, package.name, [this, repositoryId](const QList<int> &pullRequests)
+	{
+		if (pullRequests.empty())
+		{
+			return;
+		}
+
+		const auto config = this->config.devops();
+
+		const auto url = QStringLiteral("https://dev.azure.com/%1/%2/_git/%3/pullrequest/%4")
+			.arg(config.organization, config.project, repositoryId)
+			.arg(pullRequests.at(0));
+
+		QDesktopServices::openUrl({url});
+	});
+}
+
 
 auto PackageTableModel::getAssignedTeam(const QString &packageName) const -> QString
 {

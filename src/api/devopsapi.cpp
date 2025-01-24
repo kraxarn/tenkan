@@ -115,6 +115,33 @@ void DevOpsApi::teams(const std::function<void(QList<Team>)> &callback) const
 	});
 }
 
+void DevOpsApi::pullRequests(const QString &repositoryId, const QString &packageName,
+	const std::function<void(QList<int>)> &callback) const
+{
+	const auto url = QStringLiteral(
+		"/_apis/git/repositories/%1/pullrequests?searchCriteria.title=%2&searchCriteria.status=active&api-version=7.1"
+	).arg(repositoryId, packageName);
+
+	const auto request = prepareRequest(url);
+	auto *reply = http()->get(request);
+
+	await(reply, [callback](const QByteArray &response)
+	{
+		const auto json = QJsonDocument::fromJson(response);
+		const auto count = json[QStringLiteral("count")].toInt();
+
+		QList<int> pullRequests;
+		pullRequests.reserve(count);
+
+		for (const auto &value : json[QStringLiteral("value")].toArray())
+		{
+			pullRequests.append(value[QStringLiteral("pullRequestId")].toInt());
+		}
+
+		callback(std::move(pullRequests));
+	});
+}
+
 auto DevOpsApi::repositoryFileCount() const -> qsizetype
 {
 	qsizetype count = 0;

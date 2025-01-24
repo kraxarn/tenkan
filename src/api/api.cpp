@@ -24,6 +24,7 @@ void Api::await(QNetworkReply *reply, const std::function<void(QByteArray)> &cal
 		{
 			const auto statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 			qWarning().noquote().nospace() << reply->errorString() << " (" << statusCode << ")";
+			qWarning().noquote() << QString::fromUtf8(reply->readAll());
 			return;
 		}
 

@@ -2,12 +2,11 @@
 
 #include <QString>
 
-#include "config/repository.hpp"
+#include "config/project.hpp"
 
 using DevOpsConfig = struct devops_config_t
 {
 	QString pat;
 	QString organization;
-	QString project;
-	QList<RepositoryConfig> repositories;
+	QList<ProjectConfig> projects;
 };

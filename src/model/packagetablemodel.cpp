@@ -109,7 +109,7 @@ void PackageTableModel::addPackage(const Package &package)
 }
 
 
-void PackageTableModel::loadItems(const QString &filePath, const QString &repositoryId,
+void PackageTableModel::loadItems(const QString &filePath, const QString &projectId, const QString &repositoryId,
 	const QList<DotNet::PackageReference> &dotNetPackages)
 {
 	beginInsertRows({},
@@ -128,6 +128,7 @@ void PackageTableModel::loadItems(const QString &filePath, const QString &reposi
 			.lastChecked = {},
 			.filePath = filePath,
 			.fileName = QFileInfo(filePath).fileName(),
+			.projectId = projectId,
 			.repositoryId = repositoryId,
 		});
 	}
@@ -140,7 +141,7 @@ void PackageTableModel::loadItems(const QString &filePath, const QString &reposi
 	}
 }
 
-void PackageTableModel::loadItems(const QString &filePath, const QString &repositoryId,
+void PackageTableModel::loadItems(const QString &filePath, const QString &projectId, const QString &repositoryId,
 	const QList<NodeJs::Package> &nodeJsPackages)
 {
 	beginInsertRows({},
@@ -161,6 +162,7 @@ void PackageTableModel::loadItems(const QString &filePath, const QString &reposi
 			.lastChecked = {},
 			.filePath = filePath,
 			.fileName = QStringLiteral("%1/%2").arg(fileInfo.dir().dirName(), fileInfo.fileName()),
+			.projectId = projectId,
 			.repositoryId = repositoryId,
 		});
 	}
@@ -182,45 +184,51 @@ void PackageTableModel::loadItems()
 
 	repositoryFileCount = devOpsApi.repositoryFileCount();
 
-	for (const auto &repositoryId : devOpsApi.repositoryIds())
+	for (const auto &projectId : devOpsApi.projectIds())
 	{
-		for (const auto &path : devOpsApi.repositoryFiles(repositoryId))
+		for (const auto &repositoryId : devOpsApi.repositoryIds(projectId))
 		{
-			if (path.endsWith(QStringLiteral(".csproj")))
+			for (const auto &path : devOpsApi.repositoryFiles(repositoryId))
 			{
-				devOpsApi.getPackageReferences(repositoryId, path,
-					[this, path, repositoryId](const QList<DotNet::PackageReference> &packages)
-					{
-						loadItems(path, repositoryId, packages);
-					});
-				continue;
-			}
+				if (path.endsWith(QStringLiteral(".csproj")))
+				{
+					devOpsApi.getPackageReferences(projectId, repositoryId, path,
+						[this, path, projectId, repositoryId](const QList<DotNet::PackageReference> &packages)
+						{
+							loadItems(path, projectId, repositoryId, packages);
+						});
+					continue;
+				}
 
-			if (path.endsWith(QStringLiteral("package.json")))
-			{
-				devOpsApi.packages(repositoryId, path,
-					[this, path, repositoryId](const QList<NodeJs::Package> &packages)
-					{
-						loadItems(path, repositoryId, packages);
-					});
-				continue;
-			}
+				if (path.endsWith(QStringLiteral("package.json")))
+				{
+					devOpsApi.packages(projectId, repositoryId, path,
+						[this, path, projectId, repositoryId](const QList<NodeJs::Package> &packages)
+						{
+							loadItems(path, projectId, repositoryId, packages);
+						});
+					continue;
+				}
 
-			qFatal() << "Unknown path:" << path;
+				qFatal() << "Unknown path:" << path;
+			}
 		}
 	}
 
-	devOpsApi.teams([this](const QList<Team> &teams)
+	teams.clear();
+
+	for (const auto &projectId : devOpsApi.projectIds())
 	{
-		this->teams.clear();
-
-		for (const auto &team : teams)
+		devOpsApi.teams(projectId, [this](const QList<Team> &teams)
 		{
-			this->teams.insert(team.id, team);
-		}
+			for (const auto &team : teams)
+			{
+				this->teams.insert(team.id, team);
+			}
 
-		emit teamsChanged();
-	});
+			emit teamsChanged();
+		});
+	}
 
 	cosmosDbApi.queryDocuments([this](const QList<QJsonObject> &documents)
 	{
@@ -688,33 +696,35 @@ auto PackageTableModel::openPullRequest(const QString &packageName) -> void
 	}
 
 	const auto &package = packages[packageName].at(0);
+	const auto &projectId = package.projectId;
 	const auto &repositoryId = package.repositoryId;
 
-	devOpsApi.pullRequests(repositoryId, package.name, [this, repositoryId](const QList<PullRequest> &pullRequests)
-	{
-		if (pullRequests.empty())
+	devOpsApi.pullRequests(repositoryId, package.name,
+		[this, projectId, repositoryId](const QList<PullRequest> &pullRequests)
 		{
-			return;
-		}
-
-		auto *latest = &pullRequests.at(0);
-
-		for (const auto &pullRequest : pullRequests)
-		{
-			if (pullRequest.creationDate > latest->creationDate)
+			if (pullRequests.empty())
 			{
-				latest = &pullRequest;
+				return;
 			}
-		}
 
-		const auto config = this->config.devops();
+			auto *latest = &pullRequests.at(0);
 
-		const auto url = QStringLiteral("https://dev.azure.com/%1/%2/_git/%3/pullrequest/%4")
-			.arg(config.organization, config.project, repositoryId)
-			.arg(latest->pullRequestId);
+			for (const auto &pullRequest : pullRequests)
+			{
+				if (pullRequest.creationDate > latest->creationDate)
+				{
+					latest = &pullRequest;
+				}
+			}
 
-		QDesktopServices::openUrl({url});
-	});
+			const auto config = this->config.devops();
+
+			const auto url = QStringLiteral("https://dev.azure.com/%1/%2/_git/%3/pullrequest/%4")
+				.arg(config.organization, projectId, repositoryId)
+				.arg(latest->pullRequestId);
+
+			QDesktopServices::openUrl({url});
+		});
 }
 
 

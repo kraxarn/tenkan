@@ -1,7 +1,9 @@
 #pragma once
 
+#include <QJsonArray>
 #include <QJsonDocument>
 
+#include "config/project.hpp"
 #include "config/repository.hpp"
 #include "config/aikido.hpp"
 #include "config/devops.hpp"
@@ -25,7 +27,10 @@ private:
 	const QJsonDocument json;
 
 	[[nodiscard]]
-	auto repositories() const -> QList<RepositoryConfig>;
+	auto projects() const -> QList<ProjectConfig>;
+
+	[[nodiscard]]
+	static auto repositories(const QJsonArray &array) -> QList<RepositoryConfig>;
 
 	[[nodiscard]]
 	static auto parse() -> QJsonDocument;

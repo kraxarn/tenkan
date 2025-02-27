@@ -17,5 +17,6 @@ using Package = struct package_t
 	QString comment;
 	QString filePath;
 	QString fileName;
+	QString projectId;
 	QString repositoryId;
 };

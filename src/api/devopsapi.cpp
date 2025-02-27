@@ -33,11 +33,11 @@ auto DevOpsApi::accessToken() const -> QString
 		.arg(config.pat).toUtf8().toBase64());
 }
 
-void DevOpsApi::getFileContent(const QString &repositoryId, const QString &path,
-	const std::function<void(QByteArray)> &callback) const
+void DevOpsApi::getFileContent(const QString &projectId, const QString &repositoryId,
+	const QString &path, const std::function<void(QByteArray)> &callback) const
 {
 	const auto url = QStringLiteral("/%1/_apis/git/repositories/%2/items?path=%3")
-		.arg(config.project, repositoryId, path);
+		.arg(projectId, repositoryId, path);
 
 	const auto request = prepareRequest(url);
 	auto *reply = http()->get(request);
@@ -45,51 +45,53 @@ void DevOpsApi::getFileContent(const QString &repositoryId, const QString &path,
 	await(reply, callback);
 }
 
-void DevOpsApi::getPackageReferences(const QString &repositoryId, const QString &path,
-	const std::function<void(QList<DotNet::PackageReference>)> &callback) const
+void DevOpsApi::getPackageReferences(const QString &projectId, const QString &repositoryId,
+	const QString &path, const std::function<void(QList<DotNet::PackageReference>)> &callback) const
 {
-	getFileContent(repositoryId, path, [callback](const QByteArray &response)
+	getFileContent(projectId, repositoryId, path, [callback](const QByteArray &response)
 	{
 		CsProjParser parser(response);
 		callback(parser.getPackageReferences());
 	});
 }
 
-void DevOpsApi::packages(const QString &repositoryId, const QString &path,
-	const std::function<void(QList<NodeJs::Package>)> &callback) const
+void DevOpsApi::packages(const QString &projectId, const QString &repositoryId,
+	const QString &path, const std::function<void(QList<NodeJs::Package>)> &callback) const
 {
-	getFileContent(repositoryId, path, [this, repositoryId, path, callback](const QByteArray &response)
-	{
-		QString lockName;
-		switch (PackageJsonParser::packageManager(response))
+	getFileContent(projectId, repositoryId, path,
+		[this, projectId, repositoryId, path, callback](const QByteArray &response)
 		{
-			case NodeJsPackageManager::Npm:
-				lockName = "package-lock.json";
-				break;
+			QString lockName;
+			switch (PackageJsonParser::packageManager(response))
+			{
+				case NodeJsPackageManager::Npm:
+					lockName = "package-lock.json";
+					break;
 
-			case NodeJsPackageManager::Yarn:
-				lockName = "yarn.lock";
-				break;
+				case NodeJsPackageManager::Yarn:
+					lockName = "yarn.lock";
+					break;
 
-			case NodeJsPackageManager::Unknown:
-				qFatal() << "Unknown package manager in package.json";
-				break;
-		}
+				case NodeJsPackageManager::Unknown:
+					qFatal() << "Unknown package manager in package.json";
+					break;
+			}
 
-		const auto lockPath = QFileInfo(path).dir().filePath(lockName);
-		getFileContent(repositoryId, lockPath, [response, callback](const QByteArray &lockResponse)
-		{
-			const PackageJsonParser parser(response, lockResponse);
-			callback(parser.packages());
+			const auto lockPath = QFileInfo(path).dir().filePath(lockName);
+			getFileContent(projectId, repositoryId, lockPath,
+				[response, callback](const QByteArray &lockResponse)
+				{
+					const PackageJsonParser parser(response, lockResponse);
+					callback(parser.packages());
+				});
 		});
-	});
 }
 
 
-void DevOpsApi::teams(const std::function<void(QList<Team>)> &callback) const
+void DevOpsApi::teams(const QString &projectId, const std::function<void(QList<Team>)> &callback) const
 {
 	const auto url = QStringLiteral("/_apis/projects/%1/teams?api-version=7.1")
-		.arg(config.project);
+		.arg(projectId);
 
 	const auto request = prepareRequest(url);
 	auto *reply = http()->get(request);
@@ -151,47 +153,89 @@ auto DevOpsApi::repositoryFileCount() const -> qsizetype
 {
 	qsizetype count = 0;
 
-	for (const auto &repository : config.repositories)
+	for (const auto &project : config.projects)
 	{
-		count += repository.files.size();
+		for (const auto &repository : project.repositories)
+		{
+			count += repository.files.size();
+		}
 	}
 
 	return count;
 }
 
-auto DevOpsApi::repositoryIds() const -> QStringList
+auto DevOpsApi::repositoryCount() const -> qsizetype
+{
+	qsizetype count = 0;
+
+	for (const auto &project : config.projects)
+	{
+		count += project.repositories.size();
+	}
+
+	return count;
+}
+
+auto DevOpsApi::projectIds() const -> QStringList
 {
 	QStringList ids;
-	ids.reserve(config.repositories.size());
+	ids.reserve(config.projects.size());
 
-	for (const auto &repository : config.repositories)
+	for (const auto &project : config.projects)
 	{
-		ids.append(repository.id);
+		ids.append(project.id);
 	}
 
 	return ids;
 }
 
-
-auto DevOpsApi::repositoryFiles(const QString &repositoryId) const -> QStringList
+auto DevOpsApi::repositoryIds(const QString &projectId) const -> QStringList
 {
-	for (const auto &repository : config.repositories)
+	for (const auto &project : config.projects)
 	{
-		if (repository.id != repositoryId)
+		if (project.id != projectId)
 		{
 			continue;
 		}
 
-		QStringList files;
-		files.reserve(repository.files.size());
+		QStringList ids;
+		ids.reserve(project.repositories.size());
 
-		for (const auto &path : repository.files)
+		for (const auto &repository : project.repositories)
 		{
-			files.append(path);
+			ids.append(repository.id);
 		}
 
-		return files;
+		return ids;
 	}
+
+	return {};
+}
+
+
+auto DevOpsApi::repositoryFiles(const QString &repositoryId) const -> QStringList
+{
+	for (const auto &project : config.projects)
+	{
+		for (const auto &repository : project.repositories)
+		{
+			if (repository.id != repositoryId)
+			{
+				continue;
+			}
+
+			QStringList files;
+			files.reserve(repository.files.size());
+
+			for (const auto &path : repository.files)
+			{
+				files.append(path);
+			}
+
+			return files;
+		}
+	}
+
 
 	return {};
 }

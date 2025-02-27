@@ -91,10 +91,10 @@ private:
 
 	static auto getPackageSourceIcon(PackageType type) -> QString;
 
-	void loadItems(const QString &filePath, const QString &repositoryId,
+	void loadItems(const QString &filePath, const QString &projectId, const QString &repositoryId,
 		const QList<DotNet::PackageReference> &dotNetPackages);
 
-	void loadItems(const QString &filePath, const QString &repositoryId,
+	void loadItems(const QString &filePath, const QString &projectId, const QString &repositoryId,
 		const QList<NodeJs::Package> &nodeJsPackages);
 
 	void addPackage(const Package &package);

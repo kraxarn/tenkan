@@ -31,8 +31,7 @@ auto Config::devops() const -> DevOpsConfig
 	return {
 		.pat = object[QStringLiteral("pat")].toString(),
 		.organization = object[QStringLiteral("organization")].toString(),
-		.project = object[QStringLiteral("project")].toString(),
-		.repositories = repositories(),
+		.projects = projects(),
 	};
 }
 
@@ -48,12 +47,27 @@ auto Config::cosmosDb() const -> CosmosDbConfig
 	};
 }
 
-
-auto Config::repositories() const -> QList<RepositoryConfig>
+auto Config::projects() const -> QList<ProjectConfig>
 {
 	const auto object = json[QStringLiteral("devops")].toObject();
-	const auto array = object[QStringLiteral("repositories")].toArray();
+	const auto array = object[QStringLiteral("projects")].toArray();
 
+	QList<ProjectConfig> projects;
+	projects.reserve(array.size());
+
+	for (const auto value : array)
+	{
+		projects.append({
+			.id = value[QStringLiteral("id")].toString(),
+			.repositories = repositories(value[QStringLiteral("repositories")].toArray()),
+		});
+	}
+
+	return projects;
+}
+
+auto Config::repositories(const QJsonArray &array) -> QList<RepositoryConfig>
+{
 	QList<RepositoryConfig> repositories;
 	repositories.reserve(array.size());
 

@@ -8,6 +8,7 @@
 #include "qml/windowmanager.hpp"
 #include "qml/greeter.hpp"
 #include "qml/settings.hpp"
+#include "server/apiserver.hpp"
 
 namespace
 {
@@ -41,6 +42,9 @@ auto main(int argc, char *argv[]) -> int
 	QCoreApplication::setOrganizationName(QStringLiteral(ORG_NAME));
 
 	const QGuiApplication app(argc, argv);
+
+	ApiServer api;
+	api.listen();
 
 	QFontDatabase::addApplicationFont(":/res/font/RobotoFlex-Regular.ttf");
 	QGuiApplication::setFont(QFont("Roboto Flex"));

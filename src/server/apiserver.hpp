@@ -15,4 +15,6 @@ private:
 	QTcpServer tcpServer;
 
 	void route();
+
+	static auto getVersion() -> QHttpServerResponse;
 };

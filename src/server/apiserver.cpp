@@ -29,13 +29,15 @@ auto ApiServer::listen(const int port) -> bool
 
 void ApiServer::route()
 {
-	httpServer.route(QStringLiteral("/version"), QHttpServerRequest::Method::Get, []
-	{
-		QJsonObject json;
-		json[QStringLiteral("name")] = QCoreApplication::applicationName();
-		json[QStringLiteral("version")] = QCoreApplication::applicationVersion();
-		json[QStringLiteral("date")] = QStringLiteral("%1 %2").arg(__DATE__, __TIME__);
+	httpServer.route(QStringLiteral("/version"), QHttpServerRequest::Method::Get, &ApiServer::getVersion);
+}
 
-		return QHttpServerResponse(json);
-	});
+auto ApiServer::getVersion() -> QHttpServerResponse
+{
+	QJsonObject json;
+	json[QStringLiteral("name")] = QCoreApplication::applicationName();
+	json[QStringLiteral("version")] = QCoreApplication::applicationVersion();
+	json[QStringLiteral("date")] = QStringLiteral("%1 %2").arg(__DATE__, __TIME__);
+
+	return QHttpServerResponse(json);
 }

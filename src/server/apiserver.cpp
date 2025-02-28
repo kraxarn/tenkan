@@ -29,7 +29,7 @@ auto ApiServer::listen(const int port) -> bool
 
 void ApiServer::route()
 {
-	httpServer.route(QStringLiteral("/version"), []
+	httpServer.route(QStringLiteral("/version"), QHttpServerRequest::Method::Get, []
 	{
 		QJsonObject json;
 		json[QStringLiteral("name")] = QCoreApplication::applicationName();

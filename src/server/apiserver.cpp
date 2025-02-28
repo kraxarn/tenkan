@@ -1,5 +1,6 @@
 #include "server/apiserver.hpp"
 
+#include <QCoreApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
 
@@ -31,8 +32,8 @@ void ApiServer::route()
 	httpServer.route(QStringLiteral("/version"), []
 	{
 		QJsonObject json;
-		json[QStringLiteral("name")] = QStringLiteral(APP_NAME);
-		json[QStringLiteral("version")] = QStringLiteral(APP_VERSION);
+		json[QStringLiteral("name")] = QCoreApplication::applicationName();
+		json[QStringLiteral("version")] = QCoreApplication::applicationVersion();
 		json[QStringLiteral("date")] = QStringLiteral("%1 %2").arg(__DATE__, __TIME__);
 
 		return QHttpServerResponse(json);
